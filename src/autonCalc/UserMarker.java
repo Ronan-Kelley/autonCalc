@@ -12,10 +12,22 @@ public class UserMarker {
 	// TODO rotation has yet to be configured - there are no binds to affect it, and
 	// there is no real use for it atm
 	private int rotation;
-	// TODO setters for lastAngle, lastDistance aren't properly done
-	private int lastAngle, lastDistance; // angle and distance of this marker and the last one
+	//lastAngle is in radians
+	private double lastAngle, lastDistance; // angle and distance of this marker and the last one
 	private Boolean sameLine = true;
 	private Color color;
+	private UserMarker lastMarker = null;
+
+	public UserMarker(UserMarker lastMarker, Boolean sameLine) {
+		setXPos(lastMarker.getXPos());
+		setYPos(lastMarker.getYPos());
+		setSameLine(sameLine);
+		setHeight(15);
+		setWidth(15);
+		calcCenter();
+		setRotation(0);
+		setLastMarker(lastMarker);
+	}
 
 	public UserMarker(int x, int y, Boolean sameLine) {
 		setXPos(x);
@@ -24,36 +36,6 @@ public class UserMarker {
 		setWidth(15);
 		setRotation(0);
 		setSameLine(sameLine);
-		calcCenter();
-	}
-
-	public UserMarker(int x, int y, int h, int w) {
-		setXPos(x);
-		setYPos(y);
-		setHeight(h);
-		setWidth(w);
-		setRotation(0);
-
-		calcCenter();
-	}
-
-	public UserMarker(int x, int y, int rotation) {
-		setXPos(x);
-		setYPos(y);
-		setHeight(15);
-		setWidth(15);
-		setRotation(rotation);
-
-		calcCenter();
-	}
-
-	public UserMarker(int x, int y, int h, int w, int rotation) {
-		setXPos(x);
-		setYPos(y);
-		setHeight(15);
-		setWidth(15);
-		setRotation(rotation);
-
 		calcCenter();
 	}
 
@@ -145,20 +127,29 @@ public class UserMarker {
 		}
 	}
 
-	public int getLastAngle() {
+	public double getLastAngle() {
 		return lastAngle;
 	}
 
-	public void setLastAngle(int lastAngle) {
-		this.lastAngle = lastAngle;
+	public void setLastAngle(UserMarker lastMarker) {
+		double lastX = lastMarker.getCenterX();
+		double lastY = lastMarker.getCenterY();
+		double currentX = getCenterX();
+		double currentY = getCenterY();
+		
+		this.lastAngle = angleCalc(lastX, lastY, currentX, currentY);
 	}
 
-	public int getLastDistance() {
+	public double getLastDistance() {
 		return lastDistance;
 	}
 
-	public void setLastDistance(int lastDistance) {
-		this.lastDistance = lastDistance;
+	public void setLastDistance(UserMarker lastMarker) {
+		double lastX = lastMarker.getCenterX();
+		double lastY = lastMarker.getCenterY();
+		double currentX = getCenterX();
+		double currentY = getCenterY();
+		this.lastDistance = DistanceCalc(lastX, lastY, currentX, currentY);
 	}
 
 	public Boolean getSameLine() {
@@ -175,6 +166,14 @@ public class UserMarker {
 
 	public void setColor(Color color) {
 		this.color = color;
+	}
+
+	public UserMarker getLastMarker() {
+		return lastMarker;
+	}
+
+	public void setLastMarker(UserMarker lastMarker) {
+		this.lastMarker = lastMarker;
 	}
 
 	public void calcCenter() {
@@ -247,23 +246,14 @@ public class UserMarker {
 	 * begin math functions
 	 */
 
-	public double DistanceCalc(int x, int y, int x1, int y1) {
+	public double DistanceCalc(double x, double y, double x1, double y1) {
 		// returns distance formula output
 		return Math.sqrt(((x1 - x) * (x1 - x)) + ((y1 - y) * (y1 - y)));
 	}
 
-	public double angleCalc(int x, int y, int x1, int y1) {
+	public double angleCalc(double x, double y, double x1, double y1) {
 		// returns angle between two points in radians
 		return Math.atan2(y1 - y, x1 - x);
-	}
-
-	public double angleCalc(int x, int y, int x1, int y1, Boolean Degrees) {
-		// return angle between two points in radians or degrees
-		if (Degrees) {
-			return Math.toDegrees(Math.atan2(y1 - y, x1 - x));
-		} else {
-			return Math.atan2(y1 - y, x1 - x);
-		}
 	}
 
 } // end of class

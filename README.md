@@ -4,14 +4,15 @@ made for FIRST FRC, this program aims to enable the creation, design, and export
 # controls
 arrow keys - move current marker
 
-enter - set position, create and swap control to new marker
+enter - set position of current marker, create and swap control to new marker
 
 escape - freeze position of current marker
 
-backslash - set position, create and swap control to new marker that doen't connect to the current line (coaching control)
+ctrl + c - clear all on screen markers
+
+# coaching specific controls
+backslash - set position of current marker, create and swap control to new marker that doen't connect to the current line (coaching control)
 
 x - shift through enemy team colors (coaching control)
 
 c - shift through friendly team colors (coaching control)
-
-ctrl + c - clear all on screen markers (coaching and auton planning)

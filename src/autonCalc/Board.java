@@ -73,7 +73,7 @@ public class Board extends JPanel implements ActionListener {
 
 		add(coords);
 
-		coords.setLocation(30, 20);
+		coords.setLocation(70, 20);
 		coords.setText("labelPos");
 
 		output.setEditable(false);
@@ -145,9 +145,8 @@ public class Board extends JPanel implements ActionListener {
 					setMark(true); // create and swap control to a new UserMarker that continues the current line
 					break;
 				case (KeyEvent.VK_0):
-					if (UMList.size() > 1) {
-						UMList.get(UMList.size()-1).calcAngleDistance();
-					}
+					//pressing 0 should output all important information from the different markers
+					UMList.get(UMList.size()-1).calcAngleDistance();
 					outputInformation();
 					break;
 				//
@@ -171,6 +170,7 @@ public class Board extends JPanel implements ActionListener {
 				}
 				if (move && allowMove) {
 					UMList.get(UMList.size() - 1).moveKeyUp(dir);
+					updateCoords();
 				}
 			}
 
@@ -187,27 +187,47 @@ public class Board extends JPanel implements ActionListener {
 		setDoubleBuffered(true);
 
 		setPreferredSize(new Dimension(boardHeight, boardWidth));
+		//load image FIRST so that it has lowest z index
 		loadArenaImage();
+		//create the first UserMarker, add it to UMList
 		initObjs();
+		/*
+		 * this doesn't strictly have to be here, but if it isn't then the formatting
+		 * will be weird until the UserMarker is moved and the window is expanded and shrunk
+		 * via the window decoration button
+		 */
+		updateCoords();
 	} // end of initBoard
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == timer) {
-
-			coords.setText("current coords: " + UMList.get(UMList.size() - 1).getXPos() + ", " + UMList.get(UMList.size() - 1).getYPos() + "; " + UMList.get(UMList.size() - 1).getRotation() + " [x,y, rotation]");
-
+			//redraw screen every time timer fires
 			repaint();
 		}
 	}
+	
+	public void updateCoords() {
+		/*
+		 * output the X, Y, and Rotation of the current UserMarker
+		 */
+		coords.setText(
+				"current coords: " + UMList.get(UMList.size() - 1).getXPos()
+				+ ", " + UMList.get(UMList.size() - 1).getYPos() + "; " +
+				UMList.get(UMList.size() - 1).getRotation() + 
+				" [x,y, rotation]");
+	}
 
 	public void loadArenaImage() {
+		/*
+		 * load the field image, taken from FIRST
+		 */
 		ImageIcon iId = new ImageIcon("src/resource/backgroundImage.png");
 		backgroundImage = iId.getImage();
 	}
 
 	public void initObjs() {
-		// add the original UserMarker
+		// add the first UserMarker
 		UMList.add(new UserMarker(50, 50, true));
 	}
 
@@ -227,15 +247,24 @@ public class Board extends JPanel implements ActionListener {
 	}
 	
 	public void outputInformation() {
-		String OUTPUT = null;
+		/*
+		 * ideally this function should pull info from the instance variables
+		 * in UserMarker objects, then display important information about them in
+		 * the "output" JTextArea.
+		 */
 		
-		double X = UMList.get(2).getCenterX();
-		double Y = UMList.get(2).getCenterY();
-		double lastAngle = UMList.get(2).getLastAngle();
-		double lastDistance = UMList.get(2).getLastDistance();
+		String OUTPUT = "";
 		
-		OUTPUT = "X: " + X + ", Y: " + Y + ", lastAngle: " + lastAngle + ", lastDistance: " + lastDistance;
-		
+		for (UserMarker marker : UMList) {
+			if (marker.getLastMarker() != null) {
+				double X = marker.getCenterX();
+				double Y = marker.getCenterY();
+				double lastAngle = marker.getLastAngle();
+				double lastDistance = marker.getLastDistance();	
+				
+				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + lastAngle + ", lastDistance: " + lastDistance + "\n";
+			}
+		}
 		output.setText(OUTPUT);
 	}
 

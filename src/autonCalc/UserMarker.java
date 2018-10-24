@@ -188,6 +188,10 @@ public class UserMarker {
 	}
 
 	public void draw(Graphics G) {
+		/*
+		 * should maybe be passed to paint component? Not sure I understand well enough which one
+		 * I should actually be using, so I'll stick to calling this with paint()
+		 */
 		G.setColor(color);
 		G.fillRect(this.xPos, this.yPos, this.width, this.height);
 	}

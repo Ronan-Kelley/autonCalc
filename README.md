@@ -13,3 +13,5 @@ backslash - set position, create and swap control to new marker that doen't conn
 x - shift through enemy team colors (coaching control)
 
 c - shift through friendly team colors (coaching control)
+
+ctrl + c - clear all on screen markers (coaching and auton planning)

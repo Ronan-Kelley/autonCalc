@@ -27,8 +27,6 @@ public class Board extends JPanel implements ActionListener {
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
 
-	public ResultsCalc results;
-
 	public boolean allowMove = true;
 
 	int XPos, YPos;
@@ -47,13 +45,11 @@ public class Board extends JPanel implements ActionListener {
 	// results
 	public ArrayList<UserMarker> UMList = new ArrayList<UserMarker>();
 
-	public ResultsCalc locationResults = new ResultsCalc(UMList);
-
 	// label to display coords, top middle
 	Label coords = new Label();
 
 	// milliseconds, event handler
-	Timer timer = new Timer(20, this);
+	Timer timer = new Timer(5, this);
 
 	// color storage
 	public Color[] FColorArray = new Color[] { Color.GREEN, Color.BLUE, Color.ORANGE };
@@ -148,6 +144,12 @@ public class Board extends JPanel implements ActionListener {
 				case (KeyEvent.VK_ENTER):
 					setMark(true); // create and swap control to a new UserMarker that continues the current line
 					break;
+				case (KeyEvent.VK_0):
+					if (UMList.size() > 1) {
+						UMList.get(UMList.size()-1).calcAngleDistance();
+					}
+					outputInformation();
+					break;
 				//
 				// begin coach-related binds
 				//
@@ -193,10 +195,7 @@ public class Board extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == timer) {
 
-			XPos = UMList.get(UMList.size() - 1).getXPos();
-			YPos = UMList.get(UMList.size() - 1).getYPos();
-
-			coords.setText("current coords: " + XPos + ", " + YPos + "[x,y]");
+			coords.setText("current coords: " + UMList.get(UMList.size() - 1).getXPos() + ", " + UMList.get(UMList.size() - 1).getYPos() + "; " + UMList.get(UMList.size() - 1).getRotation() + " [x,y, rotation]");
 
 			repaint();
 		}
@@ -218,7 +217,26 @@ public class Board extends JPanel implements ActionListener {
 		 * or not the new marker is attached to the one behind it; or, more simply put,
 		 * if sameLine is true the marker will be treated as the first marker in a line.
 		 */
-		UMList.add(new UserMarker(XPos, YPos, sameLine));
+		
+		//make sure that the necessary information is calculated, but only when it actually can be.
+		if (UMList.size() >= 2) {
+			UMList.get(UMList.size()-1).calcAngleDistance();
+		}
+		
+		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
+	}
+	
+	public void outputInformation() {
+		String OUTPUT = null;
+		
+		double X = UMList.get(2).getCenterX();
+		double Y = UMList.get(2).getCenterY();
+		double lastAngle = UMList.get(2).getLastAngle();
+		double lastDistance = UMList.get(2).getLastDistance();
+		
+		OUTPUT = "X: " + X + ", Y: " + Y + ", lastAngle: " + lastAngle + ", lastDistance: " + lastDistance;
+		
+		output.setText(OUTPUT);
 	}
 
 	@Override

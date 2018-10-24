@@ -181,6 +181,11 @@ public class UserMarker {
 		this.centerY = this.yPos + (this.height / 2);
 
 	}
+	
+	public void calcAngleDistance() {
+		setLastDistance(getLastMarker());
+		setLastAngle(getLastMarker());
+	}
 
 	public void draw(Graphics G) {
 		G.setColor(color);

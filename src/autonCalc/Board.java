@@ -28,6 +28,9 @@ public class Board extends JPanel implements ActionListener {
 	public JScrollPane scroll = new JScrollPane(output);
 
 	public boolean allowMove = true;
+	
+	//enable the use of control as a modifier key, so that ctrl + q can exist
+	public boolean modifierControlDown = false;
 
 	int XPos, YPos;
 	/*
@@ -109,6 +112,9 @@ public class Board extends JPanel implements ActionListener {
 					dir = "right";
 					move = true;
 					break;
+				case (KeyEvent.VK_CONTROL):
+					modifierControlDown = true;
+					break;
 				}
 				if (move && allowMove) {
 					UMList.get(UMList.size() - 1).moveKeyDown(dir);
@@ -141,6 +147,9 @@ public class Board extends JPanel implements ActionListener {
 					dir = "right";
 					move = true;
 					break;
+				case (KeyEvent.VK_CONTROL):
+					modifierControlDown = false;
+					break;
 				case (KeyEvent.VK_ENTER):
 					setMark(true); // create and swap control to a new UserMarker that continues the current line
 					break;
@@ -159,7 +168,13 @@ public class Board extends JPanel implements ActionListener {
 					cycleColor(true); // true is for enemy colors
 					break;
 				case (KeyEvent.VK_C):
-					cycleColor(false); // false is for friendly colors
+					if (modifierControlDown == true) { //require the control key to be pressed to activate
+						//clears on ctrl + c
+						UMList.clear();
+						initObjs();
+					} else if (modifierControlDown == false) {
+						cycleColor(false); // false is for friendly colors	
+					}
 					break;
 				//
 				// end coach related binds

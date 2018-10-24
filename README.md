@@ -11,8 +11,8 @@ escape - freeze position of current marker
 ctrl + c - clear all on screen markers
 
 # coaching specific controls
-backslash - set position of current marker, create and swap control to new marker that doen't connect to the current line (coaching control)
+backslash - set position of current marker, create and swap control to new marker that doen't connect to the current line
 
-x - shift through enemy team colors (coaching control)
+x - shift through enemy team colors
 
-c - shift through friendly team colors (coaching control)
+c - shift through friendly team colors

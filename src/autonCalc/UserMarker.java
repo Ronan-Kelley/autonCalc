@@ -1,3 +1,18 @@
+/*
+ * UserMarker is a class dedicated to the main 
+ * visual portion of this program. It holds the
+ * information pertaining to the marks made by the
+ * user, as well as the parameters for the objects
+ * being drawn. Most of its methods are setters and 
+ * getters, but a few such as rotate perform
+ * more interesting functions.
+ * 
+ * this is also where the drawing of the markers
+ * is implemented (for the most part), so any
+ * kind of code pertaining to the visuals of them
+ * is likely to be found in here.
+ */
+
 package autonCalc;
 
 import java.awt.Color;
@@ -9,10 +24,10 @@ public class UserMarker {
 	private double centerX, centerY;
 	private int xAccel, yAccel;
 	private final int defaultAccel = 8;
-	// TODO rotation has yet to be configured - there are no binds to affect it, and
-	// there is no real use for it atm
-	private int rotation;
+	//rotation is in degrees, for I am but a puny human
+	private double rotation;
 	//lastAngle is in radians
+	//TODO lastAngle is still starting the rotation 90 degrees off from what the front of the bot would be considered
 	private double lastAngle, lastDistance; // angle and distance of this marker and the last one
 	private Boolean sameLine = true;
 	private Color color;
@@ -38,7 +53,7 @@ public class UserMarker {
 		setSameLine(sameLine);
 		calcCenter();
 	}
-	
+
 	public UserMarker(UserMarker marker) {
 		//copy constructor
 		setXPos(marker.getXPos());
@@ -121,12 +136,12 @@ public class UserMarker {
 		return centerY;
 	}
 
-	public int getRotation() {
+	public double getRotation() {
 		return rotation;
 	}
 
-	public void setRotation(int rotation) {
-		if (rotation <= 360 && rotation >= 0) {
+	public void setRotation(double rotation) {
+		if (rotation <= 359 && rotation >= 0) {
 			this.rotation = rotation;
 		} else if (rotation > 360) {
 			rotation = rotation % 360;
@@ -136,6 +151,8 @@ public class UserMarker {
 				rotation += 360;
 			}
 			this.rotation = rotation;
+		} else if (rotation == 360) {
+			this.rotation = 0;
 		}
 	}
 
@@ -148,8 +165,16 @@ public class UserMarker {
 		double lastY = lastMarker.getCenterY();
 		double currentX = getCenterX();
 		double currentY = getCenterY();
-		
+
 		this.lastAngle = angleCalc(lastX, lastY, currentX, currentY);
+	}
+
+	public void setLastAngle(Boolean error) {
+		if (error == true) {
+			this.lastAngle = -1;
+		} else {
+			System.out.println("error in UserMarker.setLastAngle(Boolean overload)! Please do not call with a false or null boolean");
+		}
 	}
 
 	public double getLastDistance() {
@@ -162,6 +187,14 @@ public class UserMarker {
 		double currentX = getCenterX();
 		double currentY = getCenterY();
 		this.lastDistance = DistanceCalc(lastX, lastY, currentX, currentY);
+	}
+
+	public void setLastDistance(Boolean error) {
+		if (error == true) {
+			this.lastDistance = -1;
+		} else {
+			System.out.println("error in UserMarker.setLastDistance(Boolean overload)! Please do not call with a false or null boolean");
+		}
 	}
 
 	public Boolean getSameLine() {
@@ -193,19 +226,25 @@ public class UserMarker {
 		this.centerY = this.yPos + (this.height / 2);
 
 	}
-	
+
 	public void calcAngleDistance() {
-		setLastDistance(getLastMarker());
-		setLastAngle(getLastMarker());
+		if (getLastMarker() != null) {
+			setLastDistance(getLastMarker());
+			setLastAngle(getLastMarker());	
+		} else if (getLastMarker() == null) {
+			setLastDistance(true);
+			setLastAngle(true);
+		}
 	}
 
-	public void draw(Graphics G) {
+	public void draw(Graphics g) {
 		/*
 		 * should maybe be passed to paint component? Not sure I understand well enough which one
 		 * I should actually be using, so I'll stick to calling this with paint()
 		 */
-		G.setColor(color);
-		G.fillRect(this.xPos, this.yPos, this.width, this.height);
+
+		g.setColor(color);
+		g.fillRect(this.xPos, this.yPos, this.width, this.height);
 	}
 
 	public void moveKeyDown(String Direction) {
@@ -217,16 +256,16 @@ public class UserMarker {
 		switch (Direction) {
 		case ("down"):
 			this.yAccel = this.defaultAccel;
-			break;
+		break;
 		case ("up"):
 			this.yAccel = -this.defaultAccel;
-			break;
+		break;
 		case ("left"):
 			this.xAccel = -this.defaultAccel;
-			break;
+		break;
 		case ("right"):
 			this.xAccel = this.defaultAccel;
-			break;
+		break;
 		}
 		this.updatePos();
 	}
@@ -240,16 +279,16 @@ public class UserMarker {
 		switch (Direction) {
 		case ("down"):
 			this.yAccel = 0;
-			break;
+		break;
 		case ("up"):
 			this.yAccel = 0;
-			break;
+		break;
 		case ("left"):
 			this.xAccel = 0;
-			break;
+		break;
 		case ("right"):
 			this.xAccel = 0;
-			break;
+		break;
 		}
 		this.updatePos();
 	}
@@ -261,6 +300,16 @@ public class UserMarker {
 		this.setYPos(this.yPos + this.yAccel);
 
 		calcCenter();
+	}
+
+	public void rotate(double degrees, Boolean clockwise) {
+		if (clockwise) {
+			setRotation(getRotation()+degrees);
+		} else if (!clockwise) {
+			setRotation(getRotation()-degrees);
+		}
+
+		//		System.out.println(getRotation());
 	}
 
 	/*

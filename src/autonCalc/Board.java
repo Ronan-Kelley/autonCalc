@@ -1,3 +1,9 @@
+/*
+ * board is where all the displaying of elements happens and where
+ * the graphical portion of the piece begins. Board also contains 
+ * the keylistener, timer, and actual initializer code. 
+ */
+
 package autonCalc;
 
 import java.awt.Color;
@@ -5,6 +11,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Image;
 import java.awt.Label;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -13,6 +20,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -22,14 +30,13 @@ import javax.swing.Timer;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ActionListener {
 
-	private final int boardHeight = 800;
-	private final int boardWidth = 800;
+	public final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
 
 	public boolean allowMove = true;
-	
+
 	//enable the use of control as a modifier key, so that ctrl + q can exist
 	public boolean modifierControlDown = false;
 
@@ -74,6 +81,8 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void initBoard() {
+		setSize(screenSize);
+		setPreferredSize(screenSize);
 
 		add(coords);
 
@@ -84,6 +93,20 @@ public class Board extends JPanel implements ActionListener {
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		add(output);
+
+		setFocusable(true);
+		setDoubleBuffered(true);
+
+		//load image FIRST so that it has lowest z index
+		loadArenaImage();
+		//create the first UserMarker, add it to UMList
+		initObjs();
+		/*
+		 * this doesn't strictly have to be here, but if it isn't then the formatting
+		 * will be weird until the UserMarker is moved and the window is expanded and shrunk
+		 * via the window decoration button
+		 */
+		updateCoords();
 
 		addKeyListener(new KeyListener() {
 
@@ -99,23 +122,23 @@ public class Board extends JPanel implements ActionListener {
 				switch (keycode) {
 				case (KeyEvent.VK_UP):
 					dir = "up";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_DOWN):
 					dir = "down";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_LEFT):
 					dir = "left";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_RIGHT):
 					dir = "right";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_CONTROL):
 					modifierControlDown = true;
-					break;
+				break;
 				}
 				if (move && allowMove) {
 					UMList.get(UMList.size() - 1).moveKeyDown(dir);
@@ -134,43 +157,51 @@ public class Board extends JPanel implements ActionListener {
 				switch (keycode) {
 				case (KeyEvent.VK_UP):
 					dir = "up";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_DOWN):
 					dir = "down";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_LEFT):
 					dir = "left";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_RIGHT):
 					dir = "right";
-					move = true;
-					break;
+				move = true;
+				break;
 				case (KeyEvent.VK_CONTROL):
 					modifierControlDown = false;
-					break;
+				break;
 				case (KeyEvent.VK_ENTER):
 					setMark(true); // create and swap control to a new UserMarker that continues the current line
-					break;
+				break;
 				case (KeyEvent.VK_0):
 					//pressing 0 should output all important information from the different markers
 					UMList.get(UMList.size()-1).calcAngleDistance();
-					outputInformation();
-					break;
+				outputInformation();
+				break;
 				case (KeyEvent.VK_BACK_SPACE):
 					undoMarker();
-					break;
+				break;
+				case (KeyEvent.VK_OPEN_BRACKET):
+					UMList.get(UMList.size()-1).rotate(15, false);
+				updateCoords();
+				break;
+				case (KeyEvent.VK_CLOSE_BRACKET):
+					UMList.get(UMList.size()-1).rotate(15, true);
+				updateCoords();
+				break;
 				//
 				// begin coach-related binds
 				//
 				case (KeyEvent.VK_BACK_SLASH):
 					setMark(false); // create and swap control to a new userMarker that starts its own line.
-					break;
+				break;
 				case (KeyEvent.VK_X):
 					cycleColor(true); // true is for enemy colors
-					break;
+				break;
 				case (KeyEvent.VK_C):
 					if (modifierControlDown == true) { //require the control key to be pressed to activate
 						//clears on ctrl + c
@@ -179,13 +210,13 @@ public class Board extends JPanel implements ActionListener {
 					} else if (modifierControlDown == false) {
 						cycleColor(false); // false is for friendly colors	
 					}
-					break;
+				break;
 				//
 				// end coach related binds
 				//
 				case (KeyEvent.VK_ESCAPE):
 					allowMove = !allowMove;
-					break;
+				break;
 				}
 				if (move && allowMove) {
 					UMList.get(UMList.size() - 1).moveKeyUp(dir);
@@ -202,20 +233,6 @@ public class Board extends JPanel implements ActionListener {
 
 			}
 		});
-		setFocusable(true);
-		setDoubleBuffered(true);
-
-		setPreferredSize(new Dimension(boardHeight, boardWidth));
-		//load image FIRST so that it has lowest z index
-		loadArenaImage();
-		//create the first UserMarker, add it to UMList
-		initObjs();
-		/*
-		 * this doesn't strictly have to be here, but if it isn't then the formatting
-		 * will be weird until the UserMarker is moved and the window is expanded and shrunk
-		 * via the window decoration button
-		 */
-		updateCoords();
 	} // end of initBoard
 
 	@Override
@@ -225,16 +242,28 @@ public class Board extends JPanel implements ActionListener {
 			repaint();
 		}
 	}
-	
+
 	public void updateCoords() {
 		/*
 		 * output the X, Y, and Rotation of the current UserMarker
 		 */
+
+		//create DecimalFormat object to round degrees to 2 decimal places
+		DecimalFormat df = new DecimalFormat("#.##");
+		//make sure the rounding is done in the way a high school student would expect
+		df.setRoundingMode(RoundingMode.HALF_UP);
+
+		double degrees = UMList.get(UMList.size() - 1).getRotation();
+
+		//round degrees to two decimal places, then store in a string for printing
+		String degreesString = df.format(degrees);
+
+		int X = UMList.get(UMList.size() - 1).getXPos();
+		int Y = UMList.get(UMList.size() - 1).getYPos();
+
 		coords.setText(
-				"current coords: " + UMList.get(UMList.size() - 1).getXPos()
-				+ ", " + UMList.get(UMList.size() - 1).getYPos() + "; " +
-				UMList.get(UMList.size() - 1).getRotation() + 
-				" [x,y, rotation]");
+				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]"
+				);
 	}
 
 	public void loadArenaImage() {
@@ -256,28 +285,28 @@ public class Board extends JPanel implements ActionListener {
 		 * or not the new marker is attached to the one behind it; or, more simply put,
 		 * if sameLine is true the marker will be treated as the first marker in a line.
 		 */
-		
+
 		//make sure that the necessary information is calculated, but only when it actually can be.
 		if (UMList.size() >= 2) {
 			UMList.get(UMList.size()-1).calcAngleDistance();
 		}
-		
+
 		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
 	}
-	
+
 	public void outputInformation() {
 		/*
 		 * ideally this function should pull info from the instance variables
 		 * in UserMarker objects, then display important information about them in
 		 * the "output" JTextArea.
 		 */
-		
+
 		//used in the loop to round decimals to 2 places
 		DecimalFormat df = new DecimalFormat("#.##");
 		df.setRoundingMode(RoundingMode.HALF_UP);
-		
+
 		String OUTPUT = "";
-		
+
 		for (UserMarker marker : UMList) {
 			if (marker.getLastMarker() != null) {
 				double X = marker.getCenterX();
@@ -290,10 +319,10 @@ public class Board extends JPanel implements ActionListener {
 				if (marker.getLastDistance() == 0 || marker.getLastAngle() == 0) {
 					marker.calcAngleDistance();
 				}
-				
+
 				double lastAngle = Math.toDegrees(marker.getLastAngle());
 				double lastDistance = marker.getLastDistance();	
-				
+
 				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
 			}
 		}
@@ -301,39 +330,39 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	@Override
-	public void paintComponent(Graphics G) {
+	public void paintComponent(Graphics g) {
 		// call paint component super like a good boy
-		super.paintComponent(G);
+		super.paintComponent(g);
 
 		// might be a little weird to do things this way? Some of the graphics have
 		// their own functions just for readability.
-		doDrawing(G);
-		drawLines(G);
+		doDrawing(g);
+		drawLines(g);
 	}
 
-	public void doDrawing(Graphics G) {
+	public void doDrawing(Graphics g) {
 		/*
 		 * draws the background image before drawing all existing markers over it.
 		 */
-		G.drawImage(backgroundImage, 0, 0, this); // MUST BE THE FIRST THING DRAWN
+		g.drawImage(backgroundImage, 0, 0, this); // MUST BE THE FIRST THING DRAWN
 		for (int i = 0; i < UMList.size(); i++) {
-			UMList.get(i).draw(G);
+			UMList.get(i).draw(g);
 		}
 	}
 
-	public void drawLines(Graphics G) {
+	public void drawLines(Graphics g) {
 		/*
 		 * self explanatory, draws the lines between each UserMarker displayed on screen
 		 */
 		if (UMList.size() > 1) {
-			G.setColor(Color.black);
+			g.setColor(Color.black);
 			for (int i = 0; UMList.size() - 1 > i; i++) {
 				if (UMList.get(i + 1).getSameLine() == true) {
 					int x = (int) UMList.get(i).getCenterX();
 					int y = (int) UMList.get(i).getCenterY();
 					int x1 = (int) UMList.get(i + 1).getCenterX();
 					int y1 = (int) UMList.get(i + 1).getCenterY();
-					G.drawLine(x, y, x1, y1);
+					g.drawLine(x, y, x1, y1);
 				}
 			}
 		}
@@ -369,7 +398,7 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 	}
-	
+
 	public void undoMarker() {
 		//simply remove the most recent userMarker to re-establish control of a previous one
 		if (UMList.size() > 1) {

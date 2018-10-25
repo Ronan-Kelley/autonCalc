@@ -12,7 +12,7 @@ public class Application extends JFrame {
 	public void initUI() {
 		add(new Board());
 
-		setSize(250, 200);
+		//		setSize(250, 200);
 
 		setTitle("auton creation tool v0.3");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -25,6 +25,10 @@ public class Application extends JFrame {
 		 */
 		EventQueue.invokeLater(() -> {
 			Application exe = new Application();
+			//start maximized
+			exe.setExtendedState(JFrame.MAXIMIZED_BOTH);
+			//uncomment for almost full screen
+			//			exe.setUndecorated(true);
 			exe.setVisible(true);
 		});
 

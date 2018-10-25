@@ -10,6 +10,8 @@ escape - freeze position of current marker
 
 ctrl + c - clear all on screen markers
 
+backspace - remove the latest marker on screen
+
 # coaching specific controls
 backslash - set position of current marker, create and swap control to new marker that doen't connect to the current line
 

@@ -8,7 +8,7 @@ public class UserMarker {
 	private int height, width;
 	private double centerX, centerY;
 	private int xAccel, yAccel;
-	private int defaultAccel = 8;
+	private final int defaultAccel = 8;
 	// TODO rotation has yet to be configured - there are no binds to affect it, and
 	// there is no real use for it atm
 	private int rotation;
@@ -36,6 +36,18 @@ public class UserMarker {
 		setWidth(15);
 		setRotation(0);
 		setSameLine(sameLine);
+		calcCenter();
+	}
+	
+	public UserMarker(UserMarker marker) {
+		//copy constructor
+		setXPos(marker.getXPos());
+		setYPos(marker.getYPos());
+		setSameLine(marker.getSameLine());
+		setHeight(marker.getHeight());
+		setWidth(marker.getWidth());
+		setRotation(marker.getRotation());
+		setLastMarker(marker.getLastMarker());
 		calcCenter();
 	}
 

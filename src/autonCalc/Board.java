@@ -3,6 +3,7 @@ package autonCalc;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
@@ -162,6 +163,14 @@ public class Board extends JPanel implements ActionListener {
 				case (KeyEvent.VK_BACK_SPACE):
 					undoMarker();
 					break;
+				case (KeyEvent.VK_OPEN_BRACKET):
+					UMList.get(UMList.size()-1).rotate(15, false);
+					updateCoords();
+					break;
+				case (KeyEvent.VK_CLOSE_BRACKET):
+					UMList.get(UMList.size()-1).rotate(15, true);
+					updateCoords();
+					break;
 				//
 				// begin coach-related binds
 				//
@@ -230,11 +239,27 @@ public class Board extends JPanel implements ActionListener {
 		/*
 		 * output the X, Y, and Rotation of the current UserMarker
 		 */
+		
+		//create DecimalFormat object to round degrees to 2 decimal places
+		DecimalFormat df = new DecimalFormat("#.##");
+		//make sure the rounding is done in the way a high school student would expect
+		df.setRoundingMode(RoundingMode.HALF_UP);
+		
+		double degrees = UMList.get(UMList.size() - 1).getRotation();
+		
+		//round degrees to two decimal places, then store in a string for printing
+		String degreesString = df.format(degrees);
+		
+		int X = UMList.get(UMList.size() - 1).getXPos();
+		int Y = UMList.get(UMList.size() - 1).getYPos();
+		
 		coords.setText(
-				"current coords: " + UMList.get(UMList.size() - 1).getXPos()
-				+ ", " + UMList.get(UMList.size() - 1).getYPos() + "; " +
-				UMList.get(UMList.size() - 1).getRotation() + 
-				" [x,y, rotation]");
+				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]"
+				);
+		
+		System.out.println(degrees);
+		
+//		System.out.println(UMList.get(UMList.size()-1).getRotation());
 	}
 
 	public void loadArenaImage() {
@@ -301,39 +326,39 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	@Override
-	public void paintComponent(Graphics G) {
+	public void paintComponent(Graphics g) {
 		// call paint component super like a good boy
-		super.paintComponent(G);
+		super.paintComponent(g);
 
 		// might be a little weird to do things this way? Some of the graphics have
 		// their own functions just for readability.
-		doDrawing(G);
-		drawLines(G);
+		doDrawing(g);
+		drawLines(g);
 	}
 
-	public void doDrawing(Graphics G) {
+	public void doDrawing(Graphics g) {
 		/*
 		 * draws the background image before drawing all existing markers over it.
 		 */
-		G.drawImage(backgroundImage, 0, 0, this); // MUST BE THE FIRST THING DRAWN
+		g.drawImage(backgroundImage, 0, 0, this); // MUST BE THE FIRST THING DRAWN
 		for (int i = 0; i < UMList.size(); i++) {
-			UMList.get(i).draw(G);
+			UMList.get(i).draw(g);
 		}
 	}
 
-	public void drawLines(Graphics G) {
+	public void drawLines(Graphics g) {
 		/*
 		 * self explanatory, draws the lines between each UserMarker displayed on screen
 		 */
 		if (UMList.size() > 1) {
-			G.setColor(Color.black);
+			g.setColor(Color.black);
 			for (int i = 0; UMList.size() - 1 > i; i++) {
 				if (UMList.get(i + 1).getSameLine() == true) {
 					int x = (int) UMList.get(i).getCenterX();
 					int y = (int) UMList.get(i).getCenterY();
 					int x1 = (int) UMList.get(i + 1).getCenterX();
 					int y1 = (int) UMList.get(i + 1).getCenterY();
-					G.drawLine(x, y, x1, y1);
+					g.drawLine(x, y, x1, y1);
 				}
 			}
 		}

@@ -9,8 +9,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
-
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -158,6 +159,9 @@ public class Board extends JPanel implements ActionListener {
 					UMList.get(UMList.size()-1).calcAngleDistance();
 					outputInformation();
 					break;
+				case (KeyEvent.VK_BACK_SPACE):
+					undoMarker();
+					break;
 				//
 				// begin coach-related binds
 				//
@@ -268,16 +272,29 @@ public class Board extends JPanel implements ActionListener {
 		 * the "output" JTextArea.
 		 */
 		
+		//used in the loop to round decimals to 2 places
+		DecimalFormat df = new DecimalFormat("#.##");
+		df.setRoundingMode(RoundingMode.HALF_UP);
+		
 		String OUTPUT = "";
 		
 		for (UserMarker marker : UMList) {
 			if (marker.getLastMarker() != null) {
 				double X = marker.getCenterX();
 				double Y = marker.getCenterY();
-				double lastAngle = marker.getLastAngle();
+				/*
+				 * sometimes markers (specifically the second in the list?)
+				 * don't calculate a lastAngle or lastDistance when this 
+				 * function is called, this if statements seems to fix that
+				 */
+				if (marker.getLastDistance() == 0 || marker.getLastAngle() == 0) {
+					marker.calcAngleDistance();
+				}
+				
+				double lastAngle = Math.toDegrees(marker.getLastAngle());
 				double lastDistance = marker.getLastDistance();	
 				
-				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + lastAngle + ", lastDistance: " + lastDistance + "\n";
+				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
 			}
 		}
 		output.setText(OUTPUT);
@@ -350,6 +367,13 @@ public class Board extends JPanel implements ActionListener {
 				UMList.get(UMList.size() - 1).setColor(color);
 				colorIndexF++;
 			}
+		}
+	}
+	
+	public void undoMarker() {
+		//simply remove the most recent userMarker to re-establish control of a previous one
+		if (UMList.size() > 1) {
+			UMList.remove(UMList.size()-1);
 		}
 	}
 

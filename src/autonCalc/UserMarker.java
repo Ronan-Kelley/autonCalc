@@ -1,3 +1,18 @@
+/*
+ * UserMarker is a class dedicated to the main 
+ * visual portion of this program. It holds the
+ * information pertaining to the marks made by the
+ * user, as well as the parameters for the objects
+ * being drawn. Most of its methods are setters and 
+ * getters, but a few such as rotate perform
+ * more interesting functions.
+ * 
+ * this is also where the drawing of the markers
+ * is implemented (for the most part), so any
+ * kind of code pertaining to the visuals of them
+ * is likely to be found in here.
+ */
+
 package autonCalc;
 
 import java.awt.Color;
@@ -38,7 +53,7 @@ public class UserMarker {
 		setSameLine(sameLine);
 		calcCenter();
 	}
-	
+
 	public UserMarker(UserMarker marker) {
 		//copy constructor
 		setXPos(marker.getXPos());
@@ -150,10 +165,10 @@ public class UserMarker {
 		double lastY = lastMarker.getCenterY();
 		double currentX = getCenterX();
 		double currentY = getCenterY();
-		
+
 		this.lastAngle = angleCalc(lastX, lastY, currentX, currentY);
 	}
-	
+
 	public void setLastAngle(Boolean error) {
 		if (error == true) {
 			this.lastAngle = -1;
@@ -173,7 +188,7 @@ public class UserMarker {
 		double currentY = getCenterY();
 		this.lastDistance = DistanceCalc(lastX, lastY, currentX, currentY);
 	}
-	
+
 	public void setLastDistance(Boolean error) {
 		if (error == true) {
 			this.lastDistance = -1;
@@ -211,7 +226,7 @@ public class UserMarker {
 		this.centerY = this.yPos + (this.height / 2);
 
 	}
-	
+
 	public void calcAngleDistance() {
 		if (getLastMarker() != null) {
 			setLastDistance(getLastMarker());
@@ -227,7 +242,7 @@ public class UserMarker {
 		 * should maybe be passed to paint component? Not sure I understand well enough which one
 		 * I should actually be using, so I'll stick to calling this with paint()
 		 */
-		
+
 		g.setColor(color);
 		g.fillRect(this.xPos, this.yPos, this.width, this.height);
 	}
@@ -241,16 +256,16 @@ public class UserMarker {
 		switch (Direction) {
 		case ("down"):
 			this.yAccel = this.defaultAccel;
-			break;
+		break;
 		case ("up"):
 			this.yAccel = -this.defaultAccel;
-			break;
+		break;
 		case ("left"):
 			this.xAccel = -this.defaultAccel;
-			break;
+		break;
 		case ("right"):
 			this.xAccel = this.defaultAccel;
-			break;
+		break;
 		}
 		this.updatePos();
 	}
@@ -264,16 +279,16 @@ public class UserMarker {
 		switch (Direction) {
 		case ("down"):
 			this.yAccel = 0;
-			break;
+		break;
 		case ("up"):
 			this.yAccel = 0;
-			break;
+		break;
 		case ("left"):
 			this.xAccel = 0;
-			break;
+		break;
 		case ("right"):
 			this.xAccel = 0;
-			break;
+		break;
 		}
 		this.updatePos();
 	}
@@ -286,15 +301,15 @@ public class UserMarker {
 
 		calcCenter();
 	}
-	
+
 	public void rotate(double degrees, Boolean clockwise) {
 		if (clockwise) {
 			setRotation(getRotation()+degrees);
 		} else if (!clockwise) {
 			setRotation(getRotation()-degrees);
 		}
-		
-//		System.out.println(getRotation());
+
+		//		System.out.println(getRotation());
 	}
 
 	/*

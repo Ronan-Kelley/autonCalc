@@ -20,7 +20,7 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -34,13 +34,14 @@ public class Board extends JPanel implements ActionListener {
 
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
-
+	public JButton inputButton = new JButton("display auton input");
+	public Label coords = new Label();
+	
 	public boolean allowMove = true;
 
 	//enable the use of control as a modifier key, so that ctrl + q can exist
 	public boolean modifierControlDown = false;
 
-	int XPos, YPos;
 	/*
 	 * not to be confused with the identically named variables in UserMarker, the
 	 * XPos and YPos in this class serve as a way to remember the position of the
@@ -48,16 +49,11 @@ public class Board extends JPanel implements ActionListener {
 	 * coordinates on screen.
 	 */
 
-	public Boolean drawingLines = true;
-
 	private Image backgroundImage;
 
 	// this array list is public so that it can be used in the class that calculates
 	// results
 	public ArrayList<UserMarker> UMList = new ArrayList<UserMarker>();
-
-	// label to display coords, top middle
-	Label coords = new Label();
 
 	// milliseconds, event handler
 	Timer timer = new Timer(5, this);
@@ -68,6 +64,8 @@ public class Board extends JPanel implements ActionListener {
 
 	public int colorIndexF = 0;
 	public int colorIndexE = 0;
+	
+	public SequencerReader sequencerReader = new SequencerReader();
 
 	/*
 	 * 
@@ -93,6 +91,15 @@ public class Board extends JPanel implements ActionListener {
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
 		add(output);
+		
+		add(inputButton);
+		
+		inputButton.setLocation(500, 900);
+		inputButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("clicked");
+			}
+		});
 
 		setFocusable(true);
 		setDoubleBuffered(true);
@@ -338,6 +345,8 @@ public class Board extends JPanel implements ActionListener {
 		// their own functions just for readability.
 		doDrawing(g);
 		drawLines(g);
+		//this has to be called in here so that it can get the graphics component it needs
+//		sequencerReader.run(g, "this is a string"); //uncomment this when it's finished
 	}
 
 	public void doDrawing(Graphics g) {

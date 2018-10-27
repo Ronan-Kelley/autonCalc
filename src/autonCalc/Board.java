@@ -76,6 +76,46 @@ public class Board extends JPanel implements ActionListener {
 	public Board() {
 		initBoard();
 		timer.start();
+		
+		outputSequencerReader();
+	}
+
+	public void outputSequencerReader() {
+		String testString = "package org.usfirst.frc141.Runcode2018.commands.AutonSequences;\n" + 
+				"\n" + 
+				"import org.usfirst.frc141.Runcode2018.Robot;\n" + 
+				"import org.usfirst.frc141.Runcode2018.RobotMap;\n" + 
+				"import org.usfirst.frc141.Runcode2018.commands.CubeClose;\n" + 
+				"import org.usfirst.frc141.Runcode2018.commands.DriveTo;\n" + 
+				"import org.usfirst.frc141.Runcode2018.commands.ToggleElevatorShifter;\n" + 
+				"import org.usfirst.frc141.Runcode2018.commands.setElevatorPosition;\n" + 
+				"import org.usfirst.frc141.Runcode2018.subsystems.Elevator;\n" + 
+				"\n" + 
+				"import edu.wpi.first.wpilibj.command.CommandGroup;\n" + 
+				"\n" + 
+				"public class AutonBaseline extends CommandGroup {\n" + 
+				"	public AutonBaseline() {\n" + 
+				"		requires(RobotMap.leftBackWheel);\n" + 
+				"    	requires(RobotMap.rightFrontWheel);\n" + 
+				"    	requires(RobotMap.rightBackWheel);\n" + 
+				"    	requires(RobotMap.leftBackWheel);\n" + 
+				"    	requires(Robot.cubeManipulator);\n" + 
+				"    	requires(Robot.elevator);\n" + 
+				"    	\n" + 
+				"    	//just drive forward, front facing forward, and cross baseline\n" + 
+				"    	\n" + 
+				"    	Robot.gyroLoop.setOffset((0));\n" + 
+				"    	addSequential(new CubeClose());\n" + 
+				"    	addSequential(new ToggleElevatorShifter());\n" + 
+				"    	addParallel(new setElevatorPosition(Elevator.ELEVATOR_SWITCH_POSITION));\n" + 
+				"    	addSequential(new DriveTo(140, 0, .4));\n" + 
+				"	}\n" + 
+				"	\n" + 
+				"}";
+		
+		testString = sequencerReader.buildCommands(testString);
+		
+		System.out.println(testString);
 	}
 
 	public void initBoard() {

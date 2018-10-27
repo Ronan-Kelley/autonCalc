@@ -21,17 +21,38 @@ public class SequencerReader {
 		draw(g);
 	}
 	
-	private void buildCommands(String commands) {
-		//get rid of addSequential string (case insensitive)
-		commands = commands.replaceAll("(?i)AddSequential\\(new ", "")
-				//remove the trailing semicolon
+	//should be private void, currently public String for testing
+	public String buildCommands(String commands) {
+		commands = commands
+				//remove all tab characters
+				.replaceAll("(?:\\t+|\\s+)", "")
+				//get rid of addSequential string (case insensitive)
+				.replaceAll("(?i)AddSequential\\(new", "")
+				//add newlines after all semicolons
+				.replace(";", ";\n")
+				/*
+				 * remove all lines including
+				 * - package
+				 * - addParallel
+				 * - import
+				 * - public
+				 * - requires
+				 * - //
+				 * - cubeclose
+				 */
+				.replaceAll("(?mi)^package.*|addParallel.*|import.*|public.*|requires.*|//.*|cubeclose.*|elevator.*", "")
+				//remove semicolons
 				.replace(";", "")
+				//remove all curly brackets
+				.replace("{", "").replace("}", "")
 				//remove the trailing double paranthesis
 				.replace("))", ")")
-				//remove the carriage return (github replaces all unix/macos style line endings w/carriage returns)
-				.replaceAll("(?:\\n|\\r)", "");
+				//remove whitespace/semicolons (github replaces all unix/macos style line endings w/carriage returns)
+				.replaceAll("(?:\\n+|\\r+|\\t+|\\s+)", "");
 		//create an an arraylist out of each of the commands, seperated by ) characters
 		robotExec = new ArrayList<String>(Arrays.asList(commands.split("\\)")));
+		
+		return commands;
 	}
 	
 	private void buildMarkers() {

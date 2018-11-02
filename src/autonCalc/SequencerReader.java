@@ -12,6 +12,8 @@ import java.util.Arrays;
 
 public class SequencerReader {
 	private ArrayList<UserMarker> markers = new ArrayList<UserMarker>();
+	private ArrayList<String> initialSplit;
+	private ArrayList<String> finalSplit = new ArrayList<String>();
 	private ArrayList<String> robotExec;
 	
 	public void run(Graphics g, String commands) {
@@ -23,11 +25,14 @@ public class SequencerReader {
 	
 	//should be private void, currently public String for testing
 	public String buildCommands(String commands) {
+		/*
+		 * this is split up into two arraylists so that comments are handled properly,
+		 * as comments on the same lines as code was breaking the reader
+		 */
+		finalSplit.clear();
 		commands = commands
 				//remove all tab characters
-				.replaceAll("(?:\\t+|\\s+)", "")
-				//get rid of addSequential string (case insensitive)
-				.replaceAll("(?i)AddSequential\\(new", "")
+//				.replaceAll("(?:\\t+|\\s+)", "")
 				//add newlines after all semicolons
 				.replace(";", ";\n")
 				/*
@@ -37,20 +42,39 @@ public class SequencerReader {
 				 * - import
 				 * - public
 				 * - requires
-				 * - //
-				 * - cubeclose
+				 * - *
+				 * - cube
+				 * - robot
+				 * - check
 				 */
-				.replaceAll("(?mi)^package.*|addParallel.*|import.*|public.*|requires.*|//.*|cubeclose.*|elevator.*", "")
-				//remove semicolons
-				.replace(";", "")
+				.replaceAll("(?mi)^package.*|addParallel.*|import.*|public.*|requires.*|elevator.*|robot.*|check.*|cube.*|\\*.*", "")
 				//remove all curly brackets
-				.replace("{", "").replace("}", "")
-				//remove the trailing double paranthesis
-				.replace("))", ")")
-				//remove whitespace/semicolons (github replaces all unix/macos style line endings w/carriage returns)
-				.replaceAll("(?:\\n+|\\r+|\\t+|\\s+)", "");
-		//create an an arraylist out of each of the commands, seperated by ) characters
-		robotExec = new ArrayList<String>(Arrays.asList(commands.split("\\)")));
+				.replaceAll("(?:\\{|\\})", "");
+		
+		initialSplit = new ArrayList<String>(Arrays.asList(commands.split(";|\n")));
+		
+		for (String initStr : initialSplit) {
+			String curStr = 
+					initStr
+					//remove all entries containing //
+					.replaceAll("(?m)//.*", "")
+					//remove all addSequential prefixes to commands
+					.replaceAll("(?i:addSequential\\(new)", "")
+					//change all double close paranthesis to single close parenthesis
+					.replace("))", ")")
+					//remove whitespace/semicolons (github replaces all unix/macos style line endings w/carriage returns)
+					.replaceAll("(?:\\n+|\\r+|\\t+|\\s+)", "");
+			
+			if (curStr.length() > 2) {
+				finalSplit.add(curStr);
+			}
+		}
+		
+		System.out.println("begin output of finalSplit");
+		
+		for (String curStr : finalSplit) {
+			System.out.println(curStr);
+		}
 		
 		return commands;
 	}

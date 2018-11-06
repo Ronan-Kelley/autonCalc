@@ -14,17 +14,17 @@ public class SequencerReader {
 	private ArrayList<UserMarker> markers = new ArrayList<UserMarker>();
 	private ArrayList<String> initialSplit;
 	private ArrayList<String> finalSplit = new ArrayList<String>();
-	private ArrayList<String> robotExec;
+	private ArrayList<Double[]> commandVals = new ArrayList<Double[]>();
 	
 	public void run(Graphics g, String commands) {
 		buildCommands(commands);
+		buildMarkerValues();
 		buildMarkers();
 		
 		draw(g);
 	}
 	
-	//should be private void, currently public String for testing
-	public String buildCommands(String commands) {
+	private void buildCommands(String commands) {
 		/*
 		 * this is split up into two arraylists so that comments are handled properly,
 		 * as comments on the same lines as code was breaking the reader
@@ -70,20 +70,71 @@ public class SequencerReader {
 			}
 		}
 		
-		System.out.println("begin output of finalSplit");
+	}
+	
+	private void buildMarkerValues() {
+		/*
+		 * this method should take the commands in FinalSplit and convert them to
+		 * arrays of decimals
+		 */
 		
 		for (String curStr : finalSplit) {
-			System.out.println(curStr);
+			/*
+			 * this is messy, if anyone has a better way of doing it, feel free!
+			 */
+			
+			double commandType = -1;
+			
+			/*
+			 * this if statement here works similarly to how file headers to -
+			 * depending on the value of the first set of switches (in this case,
+			 * the value of the first decimal), the data is read differently. In
+			 * binary files, this helps the OS executing them know if the program
+			 * is 32 bit or 64 bit, as well as what type of binary it is (I.E., 
+			 * binaries compiled on linux are ELF binaries)
+			 */
+			if (curStr.toLowerCase().indexOf("driveto") != -1) {
+				//commandType 0 = a driveTo command
+				commandType = 0;
+			} else if (curStr.toLowerCase().indexOf("rotatedegree") != -1) {
+				//commandType 1 = a rotateDegree command
+				commandType = 1;
+			}
+			
+			//remove all text from the string, keep numbers and commas
+			curStr = curStr.replaceAll("(?i:driveto\\(|rotatedegree\\(|\\))", "");
+			
+			//create a temporary array of strings, each string should just be the
+			//a decimal number
+			String[] temp = curStr.split(",");
+			//not sure how else to add the arrays as complete arrays
+			Double[] tempD = new Double[temp.length+1];
+			//add in the header
+			tempD[0] = commandType;
+			//start at 1 instead of 0 since the header takes up the first position
+			int i = 1;
+			
+			for (String tempString : temp) {
+				tempD[i] = Double.parseDouble(tempString);
+				i++;
+			}
+			
+			commandVals.add(tempD);
+			
 		}
 		
-		return commands;
+		//print values
+		for (Double[] commandVal : commandVals) {
+			System.out.println("new Double array");
+			for (Double cmdVal : commandVal) {
+				System.out.println(cmdVal);
+			}
+		}
+		
 	}
 	
 	private void buildMarkers() {
-		/*
-		 * this method should take the commands set in buildCommands and create
-		 * UserMarker objects based on them
-		 */
+		
 	}
 	
 	private void draw(Graphics g) {

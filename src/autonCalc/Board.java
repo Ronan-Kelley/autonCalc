@@ -66,6 +66,7 @@ public class Board extends JPanel implements ActionListener {
 	public int colorIndexE = 0;
 	
 	public SequencerReader sequencerReader = new SequencerReader();
+	public Boolean drawPremadeAuton = false;
 
 	/*
 	 * 
@@ -76,73 +77,6 @@ public class Board extends JPanel implements ActionListener {
 	public Board() {
 		initBoard();
 		timer.start();
-		
-		outputSequencerReader();
-	}
-
-	public void outputSequencerReader() {
-		String testString = "package org.usfirst.frc141.Runcode2018.commands.AutonSequences;\n" + 
-				"import edu.wpi.first.wpilibj.command.CommandGroup;\n" + 
-				"import org.usfirst.frc141.Runcode2018.Robot;\n" + 
-				"import org.usfirst.frc141.Runcode2018.RobotMap;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.CheckElevatorPosition;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.CubeClose;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.CubeOutputSpit;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.DriveTo;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.RotateDegree;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.ToggleElevatorShifter;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.delayXSeconds;\n" + 
-				"import org.usfirst.frc141.Runcode2018.commands.setElevatorPosition;\n" + 
-				"import org.usfirst.frc141.Runcode2018.subsystems.Elevator;\n" + 
-				"\n" + 
-				"/**\n" + 
-				" *\n" + 
-				" */\n" + 
-				"public class FourScaleL extends CommandGroup {\n" + 
-				"\n" + 
-				"    public FourScaleL() {\n" + 
-				"    	Robot.gyroLoop.setOffset((0));\n" + 
-				"    	\n" + 
-				"    	requires(RobotMap.leftBackWheel);\n" + 
-				"    	requires(RobotMap.rightFrontWheel);\n" + 
-				"    	requires(RobotMap.rightBackWheel);\n" + 
-				"    	requires(RobotMap.leftBackWheel);\n" + 
-				"    	requires(Robot.cubeManipulator);\n" + 
-				"    	requires(Robot.elevator);\n" + 
-				"    \n" + 
-				"//    	addSequential(new delayXSeconds(3)); //this was to accommodate for our alliance partner \n" + 
-				"    	\n" + 
-				"    	addParallel(new CubeClose());\n" + 
-				"    	addParallel(new ToggleElevatorShifter());\n" + 
-				"    	addParallel(new setElevatorPosition(Elevator.ELEVATOR_SWITCH_POSITION, 1));\n" + 
-				"    	addSequential(new DriveTo(185.25, 0, .51)); //.475 //179.5\n" + 
-				"    	addSequential(new RotateDegree(-41, -13.5, -45, .38)); //.38\n" + 
-				"    	addParallel(new setElevatorPosition(Elevator.ELEVATOR_SCALE_POSITION));\n" + 
-				"    	addSequential(new DriveTo(178.5, 270, .475, -45));\n" + 
-				"    	addSequential(new RotateDegree(11, -13.5, 45, .38)); //.38\n" + 
-				"    	addSequential(new CheckElevatorPosition(Elevator.ELEVATOR_SCALE_POSITION));\n" + 
-				"    	addSequential(new DriveTo(24, 0, .475)); //.4\n" + 
-				"    	addSequential(new CubeOutputSpit(5));\n" + 
-				"    	\n" + 
-				"    	\n" + 
-				"    	\n" + 
-				"//    	addParallel(new CubeClose());\n" + 
-				"//    	addSequential(new ToggleElevatorShifter());\n" + 
-				"//    	addSequential(new setElevatorPosition(Elevator.ELEVATOR_SWITCH_POSITION));\n" + 
-				"//    	addSequential(new DriveTo(180, 0, .35));\n" + 
-				"//    	addSequential(new RotateDegree(-41, -13.5, -45, .3));\n" + 
-				"//    	addSequential(new DriveTo(184, 270, .325, -45));\n" + 
-				"//    	addParallel(new setElevatorPosition(Elevator.ELEVATOR_SCALE_POSITION));\n" + 
-				"//    	addSequential(new RotateDegree(11, -13.5, 45, .3));\n" + 
-				"//    	addSequential(new delayXSeconds(1.5));\n" + 
-				"//    	addSequential(new DriveTo(27, 0, .2));\n" + 
-				"//    	addSequential(new CubeOutputSpit(true));\n" + 
-				"//    	addSequential(new DriveTo(10, 180, .3));\n" + 
-				"    }\n" + 
-				"\n" + 
-				"}";
-		
-		sequencerReader.buildCommands(testString);
 	}
 
 	public void initBoard() {
@@ -412,8 +346,9 @@ public class Board extends JPanel implements ActionListener {
 		// their own functions just for readability.
 		doDrawing(g);
 		drawLines(g);
-		//this has to be called in here so that it can get the graphics component it needs
-//		sequencerReader.run(g, "this is a string"); //uncomment this when it's finished
+		if (drawPremadeAuton) {
+			drawSequence(g);
+		}
 	}
 
 	public void doDrawing(Graphics g) {
@@ -442,6 +377,11 @@ public class Board extends JPanel implements ActionListener {
 				}
 			}
 		}
+	}
+	
+	public void drawSequence(Graphics g) {
+		//doesn't take command input quite yet
+		sequencerReader.run(g, "");
 	}
 
 	public void cycleColor(Boolean team) {

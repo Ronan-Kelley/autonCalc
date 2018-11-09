@@ -37,8 +37,8 @@ public class UserMarker {
 		setXPos(lastMarker.getXPos());
 		setYPos(lastMarker.getYPos());
 		setSameLine(sameLine);
-		setHeight(15);
-		setWidth(15);
+		setHeight(30);
+		setWidth(30);
 		calcCenter();
 		setRotation(0);
 		setLastMarker(lastMarker);
@@ -47,11 +47,22 @@ public class UserMarker {
 	public UserMarker(int x, int y, Boolean sameLine) {
 		setXPos(x);
 		setYPos(y);
-		setHeight(15);
-		setWidth(15);
+		setHeight(30);
+		setWidth(30);
 		setRotation(0);
 		setSameLine(sameLine);
 		calcCenter();
+	}
+	
+	public UserMarker(int x, int y, Boolean sameLine, UserMarker lastMarker) {
+		setXPos(x);
+		setYPos(y);
+		setHeight(30);
+		setWidth(30);
+		setRotation(0);
+		setSameLine(sameLine);
+		calcCenter();
+		setLastMarker(lastMarker);
 	}
 
 	public UserMarker(UserMarker marker) {

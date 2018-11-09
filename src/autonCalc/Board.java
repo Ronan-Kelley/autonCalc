@@ -19,6 +19,8 @@ import java.awt.event.KeyListener;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
@@ -34,9 +36,15 @@ public class Board extends JPanel implements ActionListener {
 
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
+	
+	public JTextArea input = new JTextArea(16, 58);
+	public JScrollPane scrollInput = new JScrollPane(input);
+	
 	public JButton inputButton = new JButton("display auton input");
 	public Label coords = new Label();
 	
+	public JButton focusButton = new JButton("return focus to board");
+
 	public boolean allowMove = true;
 
 	//enable the use of control as a modifier key, so that ctrl + q can exist
@@ -64,7 +72,7 @@ public class Board extends JPanel implements ActionListener {
 
 	public int colorIndexF = 0;
 	public int colorIndexE = 0;
-	
+
 	public SequencerReader sequencerReader = new SequencerReader();
 	public Boolean drawPremadeAuton = false;
 
@@ -80,6 +88,19 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void initBoard() {
+		/*
+		 * okay, so let's face it - this gui is NOT made professionally. Far from it.
+		 * It works, and that's great, but at some point, it should definitely get
+		 * a revamp - it's ugly, it doesn't follow good conventions, and if I'm
+		 * being honest board should only include the image and coordinates, with 
+		 * the two textboxes and two buttons going into another panel altogether.
+		 * 
+		 * if anyone wants to redesign the gui and knows how to, taking a stab at
+		 * it would be much appreciated - if not, I'm sure I'll get around to it
+		 * eventually
+		 */
+		setBorder(BorderFactory.createEmptyBorder(0, 400, 0, 0));
+		
 		setSize(screenSize);
 		setPreferredSize(screenSize);
 
@@ -94,13 +115,26 @@ public class Board extends JPanel implements ActionListener {
 		add(output);
 		
 		add(inputButton);
-		
+		add(focusButton);
+
 		inputButton.setLocation(500, 900);
 		inputButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("clicked");
+				drawPremadeAuton = true;
 			}
 		});
+		
+		focusButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				requestFocus();
+			}
+		});
+		
+		scrollInput.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		input.setEditable(true);
+		input.setBounds(900, 500, 70, 420);
+		
+		add(input);
 
 		setFocusable(true);
 		setDoubleBuffered(true);
@@ -115,7 +149,7 @@ public class Board extends JPanel implements ActionListener {
 		 * via the window decoration button
 		 */
 		updateCoords();
-
+		
 		addKeyListener(new KeyListener() {
 
 			@Override
@@ -214,6 +248,8 @@ public class Board extends JPanel implements ActionListener {
 					if (modifierControlDown == true) { //require the control key to be pressed to activate
 						//clears on ctrl + c
 						UMList.clear();
+						drawPremadeAuton = false;
+						sequencerReader.setFirstRun(true);
 						initObjs();
 					} else if (modifierControlDown == false) {
 						cycleColor(false); // false is for friendly colors	
@@ -273,6 +309,7 @@ public class Board extends JPanel implements ActionListener {
 				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]"
 				);
 	}
+	
 
 	public void loadArenaImage() {
 		/*
@@ -378,10 +415,10 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 	}
-	
+
 	public void drawSequence(Graphics g) {
 		//doesn't take command input quite yet
-		sequencerReader.run(g, "");
+		sequencerReader.run(g, input.getText());
 	}
 
 	public void cycleColor(Boolean team) {

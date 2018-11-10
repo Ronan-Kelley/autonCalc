@@ -97,7 +97,7 @@ public class Board extends JPanel implements ActionListener {
 		 * 
 		 * if anyone wants to redesign the gui and knows how to, taking a stab at
 		 * it would be much appreciated - if not, I'm sure I'll get around to it
-		 * eventually
+		 * eventually.
 		 */
 		setBorder(BorderFactory.createEmptyBorder(0, 400, 0, 0));
 		
@@ -120,7 +120,11 @@ public class Board extends JPanel implements ActionListener {
 		inputButton.setLocation(500, 900);
 		inputButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				drawPremadeAuton = true;
+				//TODO make this add the markers from sequencerReader to the marker array here
+				UMList.clear();
+				sequencerReader.run(input.getText());
+				UMList.addAll(sequencerReader.getMarkers());
+				setMark(true);
 			}
 		});
 		
@@ -248,8 +252,7 @@ public class Board extends JPanel implements ActionListener {
 					if (modifierControlDown == true) { //require the control key to be pressed to activate
 						//clears on ctrl + c
 						UMList.clear();
-						drawPremadeAuton = false;
-						sequencerReader.setFirstRun(true);
+//						sequencerReader.setFirstRun(true);
 						initObjs();
 					} else if (modifierControlDown == false) {
 						cycleColor(false); // false is for friendly colors	
@@ -383,9 +386,6 @@ public class Board extends JPanel implements ActionListener {
 		// their own functions just for readability.
 		doDrawing(g);
 		drawLines(g);
-		if (drawPremadeAuton) {
-			drawSequence(g);
-		}
 	}
 
 	public void doDrawing(Graphics g) {
@@ -405,20 +405,21 @@ public class Board extends JPanel implements ActionListener {
 		if (UMList.size() > 1) {
 			g.setColor(Color.black);
 			for (int i = 0; UMList.size() - 1 > i; i++) {
-				if (UMList.get(i + 1).getSameLine() == true) {
+				if (UMList.get(i + 1).getSameLine() == true && UMList.get(i +1).getCircle() == false) {
 					int x = (int) UMList.get(i).getCenterX();
 					int y = (int) UMList.get(i).getCenterY();
 					int x1 = (int) UMList.get(i + 1).getCenterX();
 					int y1 = (int) UMList.get(i + 1).getCenterY();
 					g.drawLine(x, y, x1, y1);
+				} else if (UMList.get(i + 1).getSameLine() && UMList.get(i +1).getCircle()) {
+					int circleCenterX = (int) (UMList.get(i).getCenterX() + UMList.get(i + 1).getCircleX());
+					int circleCenterY = (int) (UMList.get(i).getCenterY() + UMList.get(i + 1).getCircleY());
+					int radius = (int) UMList.get(i + 1).getRadius();
+					
+					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
 		}
-	}
-
-	public void drawSequence(Graphics g) {
-		//doesn't take command input quite yet
-		sequencerReader.run(g, input.getText());
 	}
 
 	public void cycleColor(Boolean team) {

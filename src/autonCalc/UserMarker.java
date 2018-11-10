@@ -32,6 +32,8 @@ public class UserMarker {
 	private Boolean sameLine = true;
 	private Color color;
 	private UserMarker lastMarker = null;
+	private Boolean circle = false;
+	private double circleX, circleY, radius;
 
 	public UserMarker(UserMarker lastMarker, Boolean sameLine) {
 		setXPos(lastMarker.getXPos());
@@ -53,7 +55,8 @@ public class UserMarker {
 		setSameLine(sameLine);
 		calcCenter();
 	}
-	
+
+	//constructor used in SequencerReader
 	public UserMarker(int x, int y, Boolean sameLine, UserMarker lastMarker) {
 		setXPos(x);
 		setYPos(y);
@@ -63,6 +66,22 @@ public class UserMarker {
 		setSameLine(sameLine);
 		calcCenter();
 		setLastMarker(lastMarker);
+	}
+
+	//other constructor used in SequencerReader
+	public UserMarker(int x, int y, Boolean sameLine, UserMarker lastMarker, double circleX, double circleY, double radius) {
+		setXPos(x);
+		setYPos(y);
+		setHeight(30);
+		setWidth(30);
+		setRotation(0);
+		setSameLine(sameLine);
+		calcCenter();
+		setLastMarker(lastMarker);
+		setCircle(true);
+		setCircleX(circleX);
+		setCircleY(circleY);
+		setRadius(radius);
 	}
 
 	public UserMarker(UserMarker marker) {
@@ -230,6 +249,38 @@ public class UserMarker {
 
 	public void setLastMarker(UserMarker lastMarker) {
 		this.lastMarker = lastMarker;
+	}
+
+	public Boolean getCircle() {
+		return circle;
+	}
+
+	private void setCircle(Boolean circle) {
+		this.circle = circle;
+	}
+
+	public double getCircleX() {
+		return circleX;
+	}
+
+	public void setCircleX(double circleX) {
+		this.circleX = circleX;
+	}
+
+	public double getCircleY() {
+		return circleY;
+	}
+
+	public void setCircleY(double circleY) {
+		this.circleY = circleY;
+	}
+
+	public double getRadius() {
+		return radius;
+	}
+
+	public void setRadius(double radius) {
+		this.radius = radius;
 	}
 
 	public void calcCenter() {

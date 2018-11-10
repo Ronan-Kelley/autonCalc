@@ -6,7 +6,6 @@
  */
 package autonCalc;
 
-import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -15,8 +14,7 @@ public class SequencerReader {
 	private ArrayList<String> initialSplit;
 	private ArrayList<String> finalSplit = new ArrayList<String>();
 	private ArrayList<Double[]> commandVals = new ArrayList<Double[]>();
-	private Boolean firstRun = true;
-	
+
 	public SequencerReader() {
 		/*
 		 * in the future, this should probably take a starting position and
@@ -25,16 +23,11 @@ public class SequencerReader {
 		 */
 	}
 
-	public void run(Graphics g, String commands) {
-		if (firstRun) {
-		markers.add(new UserMarker(50, 50, true));
-		buildCommands(commands);
-		buildMarkerValues();
-		buildMarkers();
-		setFirstRun(false);
-		}
-
-		draw(g);
+	public void run(String commands) {
+			markers.add(new UserMarker(50, 50, true));
+			buildCommands(commands);
+			buildMarkerValues();
+			buildMarkers();
 	}
 
 	private void buildCommands(String commands) {
@@ -42,15 +35,15 @@ public class SequencerReader {
 		 * this is split up into two arraylists so that comments are handled properly,
 		 * as comments on the same lines as code was breaking the reader
 		 */
-		
+
 		finalSplit.clear();
 		try {
-		initialSplit.clear();
+			initialSplit.clear();
 		} catch (Exception NullPointerException) {
 		}
 
 		commandVals.clear();
-		
+
 		commands = commands
 				//remove all tab characters
 				//				.replaceAll("(?:\\t+|\\s+)", "")
@@ -140,7 +133,7 @@ public class SequencerReader {
 				try {
 					tempD[i] = Double.parseDouble(tempString);	
 				} catch(Exception NumberFormatException) {
-					
+
 				} finally {
 					i++;
 				}
@@ -186,25 +179,21 @@ public class SequencerReader {
 		double oldX = markers.get(markers.size()-1).getCenterX();
 		double oldY = markers.get(markers.size()-1).getCenterY();
 		double distance = decimalArray[1];
-		double angle = Math.toRadians(Math.floor(decimalArray[2]-5)); //subtract 5 to allow for roughly straight lines
-		//decimalArray[3] contains a value for speed - which is useless in this context
-		double facing = -1;
 		
+		/*
+		 * add 5 to allow for roughly straight lines, add 90
+		 * to correct for degree 0 going to the right on computers
+		 */
+		double angle = Math.toRadians(Math.floor(decimalArray[2] + 5 + 90));
+		//decimalArray[3] contains a value for speed - which is useless in this context
+		//decimalArray[4] contains a value for facing - which is useless in this context
+
 		double newX = 0;
 		double newY = 0;
-		
-		//only assign facing a real value if the command is using it
-		if (decimalArray.length == 5) {
-			facing = decimalArray[4];
-		}
-		
-		if (decimalArray.length == 4) {
-			newX = oldX + distance * Math.cos(angle);
-			newY = oldY + distance * Math.sin(angle);
-		}
-		
-		System.out.println("angle = " + angle);
-		
+
+		newX = oldX + distance * Math.cos(angle);
+		newY = oldY + distance * Math.sin(angle);
+
 		UserMarker marker = new UserMarker((int) Math.floor(newX), (int) Math.floor(newY), true, markers.get(markers.size()-1));
 
 		return marker;
@@ -213,43 +202,23 @@ public class SequencerReader {
 	private UserMarker rotateDegreeMarker(Double[] decimalArray) {
 		double oldX = markers.get(markers.size()-1).getCenterX();
 		double oldY = markers.get(markers.size()-1).getCenterY();
-		double pivotX = decimalArray[1];
-		double pivotY = decimalArray[2];
+		double pivotX = oldX + decimalArray[1];
+		double pivotY = oldY + decimalArray[2];
 		double degree = decimalArray[3];
 		//decimalArray[4] contains a value for speed - which is useless in this context
 		double newX, newY, radius;
-		
+
 		radius = Math.sqrt(((pivotX - oldX)*(pivotX-oldX)) + ((pivotY-oldY)*(pivotY-oldY)));
-		
+
 		newX = pivotX + (radius * Math.cos(degree));
 		newY = pivotY + (radius * Math.sin(degree));
-		
-		UserMarker marker = new UserMarker((int) newX, (int) newY, true, markers.get(markers.size()-1));
-		
+
+		UserMarker marker = new UserMarker((int) newX, (int) newY, true, markers.get(markers.size()-1), decimalArray[1], decimalArray[2], radius);
+
 		return marker;
 	}
-
-	private void draw(Graphics g) {
-		for (UserMarker mark : markers) {
-			mark.draw(g);
-		}
-		for (int i = 0; i < markers.size()-2; i++) {
-				int x = (int) markers.get(i).getCenterX();
-				int y = (int) markers.get(i).getCenterY();
-				int x1 = (int) markers.get(i + 1).getCenterX();
-				int y1 = (int) markers.get(i + 1).getCenterY();
-				g.drawLine(x, y, x1, y1);
-		}
-	}
 	
-	public void setFirstRun(Boolean firstRun) {
-		this.firstRun = firstRun;
-		if (firstRun) {
-			markers.clear();
-		}
-	}
-	
-	public Boolean getFirstRun() {
-		return firstRun;
+	public ArrayList<UserMarker> getMarkers() {
+		return markers;
 	}
 }

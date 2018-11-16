@@ -32,6 +32,13 @@ import javax.swing.Timer;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ActionListener {
 
+	/**
+	 * conversion ratio is to convert between pixels and the actual distance.
+	 * right now it is 1, but once I get around to calculating it it'll
+	 * be something more accurate.
+	 */
+	public static final double conversionRatio = 1.0;
+
 	public final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public JTextArea output = new JTextArea(16, 58);
@@ -134,7 +141,6 @@ public class Board extends JPanel implements ActionListener {
 		//
 		inputButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				//TODO make this add the markers from sequencerReader to the marker array here
 				UMList.clear();
 				sequencerReader.run(input.getText());
 				UMList.addAll(sequencerReader.getMarkers());
@@ -268,7 +274,6 @@ public class Board extends JPanel implements ActionListener {
 					if (modifierControlDown == true) { //require the control key to be pressed to activate
 						//clears on ctrl + c
 						UMList.clear();
-//						sequencerReader.setFirstRun(true);
 						initObjs();
 					} else if (modifierControlDown == false) {
 						cycleColor(false); // false is for friendly colors	
@@ -289,7 +294,6 @@ public class Board extends JPanel implements ActionListener {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
 				/*
 				 * yet to have a use for this, but afaik it has to be here.
 				 */
@@ -406,7 +410,8 @@ public class Board extends JPanel implements ActionListener {
 					marker.calcAngleDistance();
 				}
 
-				double lastAngle = Math.toDegrees(marker.getLastAngle());
+				double lastAngle = Math.toDegrees(marker.getLastAngle()) * conversionRatio;
+				//this could be a potential issue, I don't know if conversionRatio will mess up angle calculations
 				double lastDistance = marker.getLastDistance();	
 
 				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
@@ -494,5 +499,5 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 	}
-
+	
 } // end of class

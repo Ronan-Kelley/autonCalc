@@ -99,25 +99,39 @@ public class Board extends JPanel implements ActionListener {
 		 * it would be much appreciated - if not, I'm sure I'll get around to it
 		 * eventually.
 		 */
+
+		//
+		//initialize board's settings
+		//
 		setBorder(BorderFactory.createEmptyBorder(0, 400, 0, 0));
 		
 		setSize(screenSize);
 		setPreferredSize(screenSize);
 
-		add(coords);
+		setFocusable(true);
+		setDoubleBuffered(true);
 
+		//
+		// initialize objects on board
+		//
+
+		//coords
 		coords.setLocation(70, 20);
 		coords.setText("labelPos");
 
+		//output textarea
 		output.setEditable(false);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-		add(output);
-		
-		add(inputButton);
-		add(focusButton);
-
+		//inputbutton
 		inputButton.setLocation(500, 900);
+		scrollInput.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		input.setEditable(true);
+		input.setBounds(900, 500, 70, 420);
+		
+		//
+		// button actionlisteners
+		//
 		inputButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//TODO make this add the markers from sequencerReader to the marker array here
@@ -133,27 +147,29 @@ public class Board extends JPanel implements ActionListener {
 				requestFocus();
 			}
 		});
-		
-		scrollInput.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		input.setEditable(true);
-		input.setBounds(900, 500, 70, 420);
-		
+
+		//
+		// add objects to board
+		//
+
+		add(coords);
+		add(output);
+		add(inputButton);
+		add(focusButton);
 		add(input);
 
-		setFocusable(true);
-		setDoubleBuffered(true);
+		//
+		// set up arena/markers
+		//
 
-		//load image FIRST so that it has lowest z index
-		loadArenaImage();
-		//create the first UserMarker, add it to UMList
-		initObjs();
-		/*
-		 * this doesn't strictly have to be here, but if it isn't then the formatting
-		 * will be weird until the UserMarker is moved and the window is expanded and shrunk
-		 * via the window decoration button
-		 */
-		updateCoords();
+		loadArenaImage(); //load image FIRST so that it has lowest z index
+		initObjs(); //create the first UserMarker, add it to UMList
+		updateCoords(); //initial drawing of coords
 		
+		//
+		// key listener
+		//
+
 		addKeyListener(new KeyListener() {
 
 			@Override
@@ -282,13 +298,64 @@ public class Board extends JPanel implements ActionListener {
 		});
 	} // end of initBoard
 
+
+	//
+	// event handling
+	//
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == timer) {
-			//redraw screen every time timer fires
-			repaint();
+			repaint(); //redraw screen every time timer fires
 		}
 	}
+
+	//
+	// methods related to initialization
+	//
+
+	public void loadArenaImage() {
+		/*
+		 * load the field image, taken from FIRST
+		 */
+		ImageIcon iId = new ImageIcon("src/resource/backgroundImage.png");
+		backgroundImage = iId.getImage();
+	}
+
+	public void initObjs() {
+		// add the first UserMarker
+		UMList.add(new UserMarker(50, 50, true));
+	}
+
+	//
+	// methods for manipulating UserMarkers
+	//
+
+	public void setMark(Boolean sameLine) {
+		/*
+		 * add a new marker (currently bound to enter). sameLine just dictates whether
+		 * or not the new marker is attached to the one behind it; or, more simply put,
+		 * if sameLine is true the marker will be treated as the first marker in a line.
+		 */
+
+		//make sure that the necessary information is calculated, but only when it actually can be.
+		if (UMList.size() >= 2) {
+			UMList.get(UMList.size()-1).calcAngleDistance();
+		}
+
+		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
+	}
+
+	public void undoMarker() {
+		//simply remove the most recent userMarker to re-establish control of a previous one
+		if (UMList.size() > 1) {
+			UMList.remove(UMList.size()-1);
+		}
+	}
+
+	//
+	// methods related to outputting information to the user
+	//
 
 	public void updateCoords() {
 		/*
@@ -311,35 +378,6 @@ public class Board extends JPanel implements ActionListener {
 		coords.setText(
 				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]"
 				);
-	}
-	
-
-	public void loadArenaImage() {
-		/*
-		 * load the field image, taken from FIRST
-		 */
-		ImageIcon iId = new ImageIcon("src/resource/backgroundImage.png");
-		backgroundImage = iId.getImage();
-	}
-
-	public void initObjs() {
-		// add the first UserMarker
-		UMList.add(new UserMarker(50, 50, true));
-	}
-
-	public void setMark(Boolean sameLine) {
-		/*
-		 * add a new marker (currently bound to enter). sameLine just dictates whether
-		 * or not the new marker is attached to the one behind it; or, more simply put,
-		 * if sameLine is true the marker will be treated as the first marker in a line.
-		 */
-
-		//make sure that the necessary information is calculated, but only when it actually can be.
-		if (UMList.size() >= 2) {
-			UMList.get(UMList.size()-1).calcAngleDistance();
-		}
-
-		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
 	}
 
 	public void outputInformation() {
@@ -376,6 +414,10 @@ public class Board extends JPanel implements ActionListener {
 		}
 		output.setText(OUTPUT);
 	}
+
+	//
+	// methods related to graphics
+	//
 
 	@Override
 	public void paintComponent(Graphics g) {
@@ -450,13 +492,6 @@ public class Board extends JPanel implements ActionListener {
 				UMList.get(UMList.size() - 1).setColor(color);
 				colorIndexF++;
 			}
-		}
-	}
-
-	public void undoMarker() {
-		//simply remove the most recent userMarker to re-establish control of a previous one
-		if (UMList.size() > 1) {
-			UMList.remove(UMList.size()-1);
 		}
 	}
 

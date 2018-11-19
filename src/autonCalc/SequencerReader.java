@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SequencerReader {
-	private final double conversionRatio = Board.conversionRatio;
 	private ArrayList<UserMarker> markers = new ArrayList<UserMarker>();
 	private ArrayList<String> initialSplit;
 	private ArrayList<String> finalSplit = new ArrayList<String>();
@@ -179,7 +178,7 @@ public class SequencerReader {
 		 */
 		double oldX = markers.get(markers.size()-1).getCenterX();
 		double oldY = markers.get(markers.size()-1).getCenterY();
-		double distance = decimalArray[1] * conversionRatio;
+		double distance = decimalArray[1];
 		
 		/*
 		 * add 5 to allow for roughly straight lines, add 90
@@ -209,7 +208,7 @@ public class SequencerReader {
 		//decimalArray[4] contains a value for speed - which is useless in this context
 		double newX, newY, radius;
 
-		radius = Math.sqrt(((pivotX - oldX)*(pivotX-oldX)) + ((pivotY-oldY)*(pivotY-oldY))) * conversionRatio;
+		radius = Math.sqrt(((pivotX - oldX)*(pivotX-oldX)) + ((pivotY-oldY)*(pivotY-oldY)));
 
 		newX = pivotX + (radius * Math.cos(degree));
 		newY = pivotY + (radius * Math.sin(degree));

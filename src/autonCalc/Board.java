@@ -37,8 +37,6 @@ public class Board extends JPanel implements ActionListener {
 	 * right now it is 1, but once I get around to calculating it it'll
 	 * be something more accurate.
 	 */
-	public static final double conversionRatio = 1.0;
-
 	public final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public JTextArea output = new JTextArea(16, 58);
@@ -410,7 +408,7 @@ public class Board extends JPanel implements ActionListener {
 					marker.calcAngleDistance();
 				}
 
-				double lastAngle = Math.toDegrees(marker.getLastAngle()) * conversionRatio;
+				double lastAngle = Math.toDegrees(marker.getLastAngle());
 				//this could be a potential issue, I don't know if conversionRatio will mess up angle calculations
 				double lastDistance = marker.getLastDistance();	
 
@@ -459,6 +457,7 @@ public class Board extends JPanel implements ActionListener {
 					int y1 = (int) UMList.get(i + 1).getCenterY();
 					g.drawLine(x, y, x1, y1);
 				} else if (UMList.get(i + 1).getSameLine() && UMList.get(i +1).getCircle()) {
+					//try to draw circles, currently not in the right spot due to lack of conversion ratio in SequencerReader
 					int circleCenterX = (int) (UMList.get(i).getCenterX() + UMList.get(i + 1).getCircleX());
 					int circleCenterY = (int) (UMList.get(i).getCenterY() + UMList.get(i + 1).getCircleY());
 					int radius = (int) UMList.get(i + 1).getRadius();

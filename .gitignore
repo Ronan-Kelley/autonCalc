@@ -24,3 +24,6 @@ hs_err_pid*
 
 #ignore visual studio code config files
 .vscode/*
+
+#ignore bin
+bin/*

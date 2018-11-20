@@ -4,7 +4,6 @@ package autonCalc;
 //that is NOT our property and we do NOT have permission.
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class FileIO {

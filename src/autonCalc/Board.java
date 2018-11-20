@@ -78,8 +78,12 @@ public class Board extends JPanel implements ActionListener {
 	public int colorIndexF = 0;
 	public int colorIndexE = 0;
 
+	//reading pre-made autons
 	public SequencerReader sequencerReader = new SequencerReader();
 	public Boolean drawPremadeAuton = false;
+
+	//reading pre-made autons from a folder of them
+	public FileIO autonGrabber = new FileIO();
 
 	/*
 	 * 

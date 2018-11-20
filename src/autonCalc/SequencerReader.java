@@ -4,6 +4,11 @@
  * code for this will be based on the commands for last year's
  * code.
  */
+
+ //TODO fix rotateDegree
+ //TODO touch up driveTo, make sure distances are correct
+ //TODO connect this to a file reader so that the autons can just be downloaded and selected from a drop down
+
 package autonCalc;
 
 import java.util.ArrayList;
@@ -20,7 +25,7 @@ public class SequencerReader {
 	//
 
 	public SequencerReader() {
-		/*
+		/* *TODO
 		 * in the future, this should probably take a starting position and
 		 * initialize the first UserMarker based on that, instead of just
 		 * arbitrarily setting it to the point 50, 50.

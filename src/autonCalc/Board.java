@@ -143,6 +143,7 @@ public class Board extends JPanel implements ActionListener {
 				sequencerReader.run(input.getText());
 				UMList.addAll(sequencerReader.getMarkers());
 				setMark(true);
+				sequencerReader.clearMem();
 			}
 		});
 		

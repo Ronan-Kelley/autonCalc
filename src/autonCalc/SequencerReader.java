@@ -15,6 +15,10 @@ public class SequencerReader {
 	private ArrayList<String> finalSplit = new ArrayList<String>();
 	private ArrayList<Double[]> commandVals = new ArrayList<Double[]>();
 
+	//
+	// constructors
+	//
+
 	public SequencerReader() {
 		/*
 		 * in the future, this should probably take a starting position and
@@ -22,6 +26,10 @@ public class SequencerReader {
 		 * arbitrarily setting it to the point 50, 50.
 		 */
 	}
+
+	//
+	// methods
+	//
 
 	public void run(String commands) {
 			markers.add(new UserMarker(50, 50, true));
@@ -217,6 +225,17 @@ public class SequencerReader {
 
 		return marker;
 	}
+	
+	public void clearMem() {
+		markers.clear();
+		initialSplit.clear();
+		finalSplit.clear();
+		commandVals.clear();
+	}
+
+	//
+	// getters and setters
+	//
 	
 	public ArrayList<UserMarker> getMarkers() {
 		return markers;

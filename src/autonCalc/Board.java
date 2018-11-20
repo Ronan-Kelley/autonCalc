@@ -19,8 +19,10 @@ import java.awt.event.KeyListener;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
+import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -30,17 +32,29 @@ import javax.swing.Timer;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ActionListener {
 
+	/**
+	 * conversion ratio is to convert between pixels and the actual distance.
+	 * right now it is 1, but once I get around to calculating it it'll
+	 * be something more accurate.
+	 */
 	public final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
+	
+	public JTextArea input = new JTextArea(16, 58);
+	public JScrollPane scrollInput = new JScrollPane(input);
+	
+	public JButton inputButton = new JButton("display auton input");
+	public Label coords = new Label();
+	
+	public JButton focusButton = new JButton("return focus to board");
 
 	public boolean allowMove = true;
 
 	//enable the use of control as a modifier key, so that ctrl + q can exist
 	public boolean modifierControlDown = false;
 
-	int XPos, YPos;
 	/*
 	 * not to be confused with the identically named variables in UserMarker, the
 	 * XPos and YPos in this class serve as a way to remember the position of the
@@ -48,16 +62,11 @@ public class Board extends JPanel implements ActionListener {
 	 * coordinates on screen.
 	 */
 
-	public Boolean drawingLines = true;
-
 	private Image backgroundImage;
 
 	// this array list is public so that it can be used in the class that calculates
 	// results
 	public ArrayList<UserMarker> UMList = new ArrayList<UserMarker>();
-
-	// label to display coords, top middle
-	Label coords = new Label();
 
 	// milliseconds, event handler
 	Timer timer = new Timer(5, this);
@@ -68,6 +77,9 @@ public class Board extends JPanel implements ActionListener {
 
 	public int colorIndexF = 0;
 	public int colorIndexE = 0;
+
+	public SequencerReader sequencerReader = new SequencerReader();
+	public Boolean drawPremadeAuton = false;
 
 	/*
 	 * 
@@ -81,32 +93,87 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void initBoard() {
+		/*
+		 * okay, so let's face it - this gui is NOT made professionally. Far from it.
+		 * It works, and that's great, but at some point, it should definitely get
+		 * a revamp - it's ugly, it doesn't follow good conventions, and if I'm
+		 * being honest board should only include the image and coordinates, with 
+		 * the two textboxes and two buttons going into another panel altogether.
+		 * 
+		 * if anyone wants to redesign the gui and knows how to, taking a stab at
+		 * it would be much appreciated - if not, I'm sure I'll get around to it
+		 * eventually.
+		 */
+
+		//
+		//initialize board's settings
+		//
+		setBorder(BorderFactory.createEmptyBorder(0, 400, 0, 0));
+		
 		setSize(screenSize);
 		setPreferredSize(screenSize);
-
-		add(coords);
-
-		coords.setLocation(70, 20);
-		coords.setText("labelPos");
-
-		output.setEditable(false);
-		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-
-		add(output);
 
 		setFocusable(true);
 		setDoubleBuffered(true);
 
-		//load image FIRST so that it has lowest z index
-		loadArenaImage();
-		//create the first UserMarker, add it to UMList
-		initObjs();
-		/*
-		 * this doesn't strictly have to be here, but if it isn't then the formatting
-		 * will be weird until the UserMarker is moved and the window is expanded and shrunk
-		 * via the window decoration button
-		 */
-		updateCoords();
+		//
+		// initialize objects on board
+		//
+
+		//coords
+		coords.setLocation(70, 20);
+		coords.setText("labelPos");
+
+		//output textarea
+		output.setEditable(false);
+		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+
+		//inputbutton
+		inputButton.setLocation(500, 900);
+		scrollInput.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+		input.setEditable(true);
+		input.setBounds(900, 500, 70, 420);
+		
+		//
+		// button actionlisteners
+		//
+		inputButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				UMList.clear();
+				sequencerReader.run(input.getText());
+				UMList.addAll(sequencerReader.getMarkers());
+				setMark(true);
+				sequencerReader.clearMem();
+			}
+		});
+		
+		focusButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				requestFocus();
+			}
+		});
+
+		//
+		// add objects to board
+		//
+
+		add(coords);
+		add(output);
+		add(inputButton);
+		add(focusButton);
+		add(input);
+
+		//
+		// set up arena/markers
+		//
+
+		loadArenaImage(); //load image FIRST so that it has lowest z index
+		initObjs(); //create the first UserMarker, add it to UMList
+		updateCoords(); //initial drawing of coords
+		
+		//
+		// key listener
+		//
 
 		addKeyListener(new KeyListener() {
 
@@ -226,7 +293,6 @@ public class Board extends JPanel implements ActionListener {
 
 			@Override
 			public void keyTyped(KeyEvent e) {
-				// TODO Auto-generated method stub
 				/*
 				 * yet to have a use for this, but afaik it has to be here.
 				 */
@@ -235,13 +301,64 @@ public class Board extends JPanel implements ActionListener {
 		});
 	} // end of initBoard
 
+
+	//
+	// event handling
+	//
+
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == timer) {
-			//redraw screen every time timer fires
-			repaint();
+			repaint(); //redraw screen every time timer fires
 		}
 	}
+
+	//
+	// methods related to initialization
+	//
+
+	public void loadArenaImage() {
+		/*
+		 * load the field image, taken from FIRST
+		 */
+		ImageIcon iId = new ImageIcon("src/resource/backgroundImage.png");
+		backgroundImage = iId.getImage();
+	}
+
+	public void initObjs() {
+		// add the first UserMarker
+		UMList.add(new UserMarker(50, 50, true));
+	}
+
+	//
+	// methods for manipulating UserMarkers
+	//
+
+	public void setMark(Boolean sameLine) {
+		/*
+		 * add a new marker (currently bound to enter). sameLine just dictates whether
+		 * or not the new marker is attached to the one behind it; or, more simply put,
+		 * if sameLine is true the marker will be treated as the first marker in a line.
+		 */
+
+		//make sure that the necessary information is calculated, but only when it actually can be.
+		if (UMList.size() >= 2) {
+			UMList.get(UMList.size()-1).calcAngleDistance();
+		}
+
+		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
+	}
+
+	public void undoMarker() {
+		//simply remove the most recent userMarker to re-establish control of a previous one
+		if (UMList.size() > 1) {
+			UMList.remove(UMList.size()-1);
+		}
+	}
+
+	//
+	// methods related to outputting information to the user
+	//
 
 	public void updateCoords() {
 		/*
@@ -264,34 +381,6 @@ public class Board extends JPanel implements ActionListener {
 		coords.setText(
 				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]"
 				);
-	}
-
-	public void loadArenaImage() {
-		/*
-		 * load the field image, taken from FIRST
-		 */
-		ImageIcon iId = new ImageIcon("src/resource/backgroundImage.png");
-		backgroundImage = iId.getImage();
-	}
-
-	public void initObjs() {
-		// add the first UserMarker
-		UMList.add(new UserMarker(50, 50, true));
-	}
-
-	public void setMark(Boolean sameLine) {
-		/*
-		 * add a new marker (currently bound to enter). sameLine just dictates whether
-		 * or not the new marker is attached to the one behind it; or, more simply put,
-		 * if sameLine is true the marker will be treated as the first marker in a line.
-		 */
-
-		//make sure that the necessary information is calculated, but only when it actually can be.
-		if (UMList.size() >= 2) {
-			UMList.get(UMList.size()-1).calcAngleDistance();
-		}
-
-		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
 	}
 
 	public void outputInformation() {
@@ -321,6 +410,7 @@ public class Board extends JPanel implements ActionListener {
 				}
 
 				double lastAngle = Math.toDegrees(marker.getLastAngle());
+				//this could be a potential issue, I don't know if conversionRatio will mess up angle calculations
 				double lastDistance = marker.getLastDistance();	
 
 				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
@@ -328,6 +418,10 @@ public class Board extends JPanel implements ActionListener {
 		}
 		output.setText(OUTPUT);
 	}
+
+	//
+	// methods related to graphics
+	//
 
 	@Override
 	public void paintComponent(Graphics g) {
@@ -357,12 +451,19 @@ public class Board extends JPanel implements ActionListener {
 		if (UMList.size() > 1) {
 			g.setColor(Color.black);
 			for (int i = 0; UMList.size() - 1 > i; i++) {
-				if (UMList.get(i + 1).getSameLine() == true) {
+				if (UMList.get(i + 1).getSameLine() == true && UMList.get(i +1).getCircle() == false) {
 					int x = (int) UMList.get(i).getCenterX();
 					int y = (int) UMList.get(i).getCenterY();
 					int x1 = (int) UMList.get(i + 1).getCenterX();
 					int y1 = (int) UMList.get(i + 1).getCenterY();
 					g.drawLine(x, y, x1, y1);
+				} else if (UMList.get(i + 1).getSameLine() && UMList.get(i +1).getCircle()) {
+					//try to draw circles, currently not in the right spot due to lack of conversion ratio in SequencerReader
+					int circleCenterX = (int) (UMList.get(i).getCenterX() + UMList.get(i + 1).getCircleX());
+					int circleCenterY = (int) (UMList.get(i).getCenterY() + UMList.get(i + 1).getCircleY());
+					int radius = (int) UMList.get(i + 1).getRadius();
+					
+					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
 		}
@@ -398,12 +499,5 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 	}
-
-	public void undoMarker() {
-		//simply remove the most recent userMarker to re-establish control of a previous one
-		if (UMList.size() > 1) {
-			UMList.remove(UMList.size()-1);
-		}
-	}
-
+	
 } // end of class

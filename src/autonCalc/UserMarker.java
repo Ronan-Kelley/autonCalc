@@ -32,13 +32,19 @@ public class UserMarker {
 	private Boolean sameLine = true;
 	private Color color;
 	private UserMarker lastMarker = null;
+	private Boolean circle = false;
+	private double circleX, circleY, radius;
+
+	//
+	// constructors
+	//
 
 	public UserMarker(UserMarker lastMarker, Boolean sameLine) {
 		setXPos(lastMarker.getXPos());
 		setYPos(lastMarker.getYPos());
 		setSameLine(sameLine);
-		setHeight(15);
-		setWidth(15);
+		setHeight(30);
+		setWidth(30);
 		calcCenter();
 		setRotation(0);
 		setLastMarker(lastMarker);
@@ -47,11 +53,39 @@ public class UserMarker {
 	public UserMarker(int x, int y, Boolean sameLine) {
 		setXPos(x);
 		setYPos(y);
-		setHeight(15);
-		setWidth(15);
+		setHeight(30);
+		setWidth(30);
 		setRotation(0);
 		setSameLine(sameLine);
 		calcCenter();
+	}
+
+	//constructor used in SequencerReader
+	public UserMarker(int x, int y, Boolean sameLine, UserMarker lastMarker) {
+		setXPos(x);
+		setYPos(y);
+		setHeight(30);
+		setWidth(30);
+		setRotation(0);
+		setSameLine(sameLine);
+		calcCenter();
+		setLastMarker(lastMarker);
+	}
+
+	//other constructor used in SequencerReader
+	public UserMarker(int x, int y, Boolean sameLine, UserMarker lastMarker, double circleX, double circleY, double radius) {
+		setXPos(x);
+		setYPos(y);
+		setHeight(30);
+		setWidth(30);
+		setRotation(0);
+		setSameLine(sameLine);
+		calcCenter();
+		setLastMarker(lastMarker);
+		setCircle(true);
+		setCircleX(circleX);
+		setCircleY(circleY);
+		setRadius(radius);
 	}
 
 	public UserMarker(UserMarker marker) {
@@ -65,6 +99,121 @@ public class UserMarker {
 		setLastMarker(marker.getLastMarker());
 		calcCenter();
 	}
+
+	//
+	// status/position manipulation
+	//
+
+	public void updatePos() {
+		// all this does is re-calculate the position of the marker, it doesn't
+		// even redraw it
+		this.setXPos(this.xPos + this.xAccel);
+		this.setYPos(this.yPos + this.yAccel);
+
+		calcCenter();
+	}
+
+	public void rotate(double degrees, Boolean clockwise) {
+		if (clockwise) {
+			setRotation(getRotation()+degrees);
+		} else if (!clockwise) {
+			setRotation(getRotation()-degrees);
+		}
+	}
+
+	public void moveKeyDown(String Direction) {
+		/*
+		 * when a key is pressed down, move. This has a sister function that takes the
+		 * key being depressed, so that motion stops.
+		 */
+
+		switch (Direction) {
+		case ("down"):
+			this.yAccel = this.defaultAccel;
+		break;
+		case ("up"):
+			this.yAccel = -this.defaultAccel;
+		break;
+		case ("left"):
+			this.xAccel = -this.defaultAccel;
+		break;
+		case ("right"):
+			this.xAccel = this.defaultAccel;
+		break;
+		}
+		this.updatePos();
+	}
+
+	public void moveKeyUp(String Direction) {
+		/*
+		 * this is the sister function to moveKeyDown, all it does is check for that key
+		 * that was pressed being depressed, and when that happens it zeros the accel
+		 * value.
+		 */
+		switch (Direction) {
+		case ("down"):
+			this.yAccel = 0;
+		break;
+		case ("up"):
+			this.yAccel = 0;
+		break;
+		case ("left"):
+			this.xAccel = 0;
+		break;
+		case ("right"):
+			this.xAccel = 0;
+		break;
+		}
+		this.updatePos();
+	}
+
+	//
+	// math functions
+	//
+
+	public double DistanceCalc(double x, double y, double x1, double y1) {
+		// returns distance formula output
+		return Math.sqrt(((x1 - x) * (x1 - x)) + ((y1 - y) * (y1 - y)));
+	}
+
+	public double angleCalc(double x, double y, double x1, double y1) {
+		// returns angle between two points in radians
+		return Math.atan2(y1 - y, x1 - x);
+	}
+
+	public void calcCenter() {
+		this.centerX = this.xPos + (this.width / 2);
+		this.centerY = this.yPos + (this.height / 2);
+
+	}
+
+	public void calcAngleDistance() {
+		if (getLastMarker() != null) {
+			setLastDistance(getLastMarker());
+			setLastAngle(getLastMarker());	
+		} else if (getLastMarker() == null) {
+			setLastDistance(true);
+			setLastAngle(true);
+		}
+	}
+
+	//
+	// handle drawing
+	//
+
+	public void draw(Graphics g) {
+		/*
+		 * should maybe be passed to paint component? Not sure I understand well enough which one
+		 * I should actually be using, so I'll stick to calling this with paint()
+		 */
+
+		g.setColor(color);
+		g.fillRect(this.xPos, this.yPos, this.width, this.height);
+	}
+
+	//
+	// getters/setters
+	//
 
 	public int getXPos() {
 		return xPos;
@@ -221,109 +370,36 @@ public class UserMarker {
 		this.lastMarker = lastMarker;
 	}
 
-	public void calcCenter() {
-		this.centerX = this.xPos + (this.width / 2);
-		this.centerY = this.yPos + (this.height / 2);
-
+	public Boolean getCircle() {
+		return circle;
 	}
 
-	public void calcAngleDistance() {
-		if (getLastMarker() != null) {
-			setLastDistance(getLastMarker());
-			setLastAngle(getLastMarker());	
-		} else if (getLastMarker() == null) {
-			setLastDistance(true);
-			setLastAngle(true);
-		}
+	private void setCircle(Boolean circle) {
+		this.circle = circle;
 	}
 
-	public void draw(Graphics g) {
-		/*
-		 * should maybe be passed to paint component? Not sure I understand well enough which one
-		 * I should actually be using, so I'll stick to calling this with paint()
-		 */
-
-		g.setColor(color);
-		g.fillRect(this.xPos, this.yPos, this.width, this.height);
+	public double getCircleX() {
+		return circleX;
 	}
 
-	public void moveKeyDown(String Direction) {
-		/*
-		 * when a key is pressed down, move. This has a sister function that takes the
-		 * key being depressed, so that motion stops.
-		 */
-
-		switch (Direction) {
-		case ("down"):
-			this.yAccel = this.defaultAccel;
-		break;
-		case ("up"):
-			this.yAccel = -this.defaultAccel;
-		break;
-		case ("left"):
-			this.xAccel = -this.defaultAccel;
-		break;
-		case ("right"):
-			this.xAccel = this.defaultAccel;
-		break;
-		}
-		this.updatePos();
+	public void setCircleX(double circleX) {
+		this.circleX = circleX;
 	}
 
-	public void moveKeyUp(String Direction) {
-		/*
-		 * this is the sister function to moveKeyDown, all it does is check for that key
-		 * that was pressed being depressed, and when that happens it zeros the accel
-		 * value.
-		 */
-		switch (Direction) {
-		case ("down"):
-			this.yAccel = 0;
-		break;
-		case ("up"):
-			this.yAccel = 0;
-		break;
-		case ("left"):
-			this.xAccel = 0;
-		break;
-		case ("right"):
-			this.xAccel = 0;
-		break;
-		}
-		this.updatePos();
+	public double getCircleY() {
+		return circleY;
 	}
 
-	public void updatePos() {
-		// all this does is re-calculate the position of the marker, it doesn't
-		// even redraw it
-		this.setXPos(this.xPos + this.xAccel);
-		this.setYPos(this.yPos + this.yAccel);
-
-		calcCenter();
+	public void setCircleY(double circleY) {
+		this.circleY = circleY;
 	}
 
-	public void rotate(double degrees, Boolean clockwise) {
-		if (clockwise) {
-			setRotation(getRotation()+degrees);
-		} else if (!clockwise) {
-			setRotation(getRotation()-degrees);
-		}
-
-		//		System.out.println(getRotation());
+	public double getRadius() {
+		return radius;
 	}
 
-	/*
-	 * begin math functions
-	 */
-
-	public double DistanceCalc(double x, double y, double x1, double y1) {
-		// returns distance formula output
-		return Math.sqrt(((x1 - x) * (x1 - x)) + ((y1 - y) * (y1 - y)));
-	}
-
-	public double angleCalc(double x, double y, double x1, double y1) {
-		// returns angle between two points in radians
-		return Math.atan2(y1 - y, x1 - x);
+	public void setRadius(double radius) {
+		this.radius = radius;
 	}
 
 } // end of class

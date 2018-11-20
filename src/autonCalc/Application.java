@@ -11,8 +11,8 @@ public class Application extends JFrame {
 
 	public void initUI() {
 		add(new Board());
-
-		//		setSize(250, 200);
+		
+		setSize(1000, 700);
 
 		setTitle("auton creation tool v0.3");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

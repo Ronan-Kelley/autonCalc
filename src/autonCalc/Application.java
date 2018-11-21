@@ -23,6 +23,9 @@ public class Application extends JFrame {
 		/*
 		 * run the graphical end of things in the better way, according to stackexchange
 		 */
+
+		System.out.println("program launched");
+
 		EventQueue.invokeLater(() -> {
 			Application exe = new Application();
 			//start maximized

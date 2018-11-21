@@ -4,6 +4,9 @@ package autonCalc;
 //that is NOT our property and we do NOT have permission.
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class FileIO {
@@ -19,7 +22,7 @@ public class FileIO {
     //
 
     public FileIO() {
-
+        test("test1");
     }
 
     //
@@ -28,19 +31,19 @@ public class FileIO {
 
     public void run() {
         readFiles();
-
     }
 
     public void test(String fileName) {
         run();
-        System.out.println(requestFileContents(fileName));
+        System.out.println("file contents:" + requestFileContents(fileName));
     }
 
     public String requestFileContents(String fileName) {
         Scanner fileIn;
         String fileContents = "";
         for (File tmp : files) {
-            if (tmp.getName().toLowerCase() == fileName.toLowerCase()) {
+            if (tmp.getName().toLowerCase().equals(fileName.toLowerCase()) || tmp.getName().toLowerCase().equals(fileName.toLowerCase() + ".java") || tmp.getName().toLowerCase().equals(fileName.toLowerCase() + ".txt") ) {
+                //if the requested file exists the exact name given, or a txt or java file exists with the same name, do this stuff
                 try {
                     fileIn = new Scanner(tmp);
                     fileContents = fileIn.useDelimiter("\\Z").next();

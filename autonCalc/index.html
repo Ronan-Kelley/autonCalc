@@ -1,0 +1,113 @@
+<head>
+    <title>
+        auton calculator
+    </title>
+    <meta charset="utf-8" />
+    <script src="js/graphics.js"></script>
+    <script src="js/Sequence.js"></script>
+    <script src="js/generateSequence.js"></script>
+    <script src="js/sanatizeInput.js"></script>
+    <script src="js/Autons.js"></script>
+    <script src="js/virtualConsole.js"></script>
+    <script>
+        virtualConsole.targetViewPort = "virtualConsolePort";
+        function calcMouseXY(event) {
+            var x = event.clientX;
+            var y = event.clientY;
+            document.getElementById('mouseCoords').innerHTML = "x pos: " + (x - 7) + "; y pos: " + ((y - 794) * -1) + "; uncorrected y pos: " + y; //old offset for y was 791
+        }
+
+        function loadBaseImage() {
+            var ctx = document.getElementById('myCanvas').getContext("2d");
+            ctx.drawImage(document.getElementById('playingFieldImage'), 0, 0);
+        }
+
+        function loadDebugCode() {
+            loadBaseImage();
+            plotCircle(20, 20);
+            plotLine(100, 100, 200, 300);
+            test = new Sequence();
+            test.setInitSqProperties(0, 0, 200, 400);
+            test.Draw();
+            console.log('on a 1366x768 resolution screen, you need to zoom out to 80% for this to work right');
+        }
+
+        function clearMouseCoords() {
+            document.getElementById('mouseCoords').innerHTML = ' ';
+        }
+
+        function getJSfromJ() {
+            var pos = document.getElementById('positions').value;
+            if (pos == 1) {
+                test.setInitSqProperties(0, 0, 59, 22);
+            } else if (pos == 4) {
+                test.setInitSqProperties(0, 0, 337, 23);
+            } else if (pos == 2) {
+                test.setInitSqProperties(0, 0, 108, 23);
+            } else if (pos == 3) {
+
+            }
+            parseLargeString(sanatizer.run(document.getElementById('javaSource').value));
+            addToArray();
+            addToDoc();
+        }
+
+        function canvasToImage() {
+            var srouce = document.getElementById('myCanvas').toDataURL();
+            var popup = window.open(
+                'data:text/html, <head> <title> image </title> <meta charset="utf-8"/> </head> <body> <img src="' +
+                srouce + '" height="785" width="392"/> </body>', 'open_window');
+            // document.getElementById('canvasToImageOutput').innerHTML = 'data:text/html, <head> <title> image </title> </head <body> <img src="' + srouce + '" height="785" width="392"/>'; //PUTS THE WHOLE DOC INTO THE DOCUMENT DON'T USE OOF
+            // document.write('<head> <title> image </title> </head <body> <img src="' + srouce + '" height="785" width="392"/> </body>')
+        }
+
+        function loadCode() {
+            loadBaseImage();
+            test = new Sequence();
+            test.setInitSqProperties(0, 0, 265, 23);
+            // test.calculateLineEnd(30, 0);
+            // test.rotateDegrees(50, 50, 36);
+            // test.calculateLineEnd(30, 0);
+            // test.rotateDegrees(50, -50, 36);
+            // test.calculateLineEnd(30, 0);
+            // test.rotateDegrees(-50, -50, -36);
+            // test.calculateLineEnd(30, 0);
+            // test.rotateDegrees(-50, 50, 36);
+            // sanatizer.run(document.getElementById('javaSource').value);
+            /*test.Draw();
+            test.calculateLineEnd(90, 45);
+            test.Draw();
+            test.calculateLineEnd(100, 0);
+            test.Draw();
+            test.calculateLineEnd(100, 90);
+            test.Draw();*/
+        }
+        /*
+         *old height is 835
+         *old width is 426
+         *(for canvas)
+         */
+    </script>
+</head>
+
+<body onload="loadCode()">
+    <img src="frc2018playingfield.png" height="785px" width="392px" style="position:absolute; visibility: hidden;" id="playingFieldImage"
+    />
+    <canvas id="myCanvas" height="785px" width="392px" onmousemove="calcMouseXY(event)" onmouseout="clearMouseCoords()" style="position:absolute">
+    </canvas>
+    <p id="mouseCoords" style="margin-top: 500px; margin-left: 450px; position:absolute;"> </p>
+    <input id="javaSource" style="position:absolute; margin-top: 200px; margin-left: 450px;" height="300px" width="300px" />
+    <button onclick="getJSfromJ();" style="position:absolute; margin-top: 230; margin-left: 450px;">Submit</button>
+    <button onclick="SequenceThis();" style="position:absolute; margin-top:230; margin-left: 530px;" id="postSub"> post-submit </button>
+    <select id="positions" style="position: absolute; margin-top: 260; margin-left: 480px;">
+        <option value="1"> position 1 </option>
+        <option value="2"> position 2 </option>
+        <option value="3"> position 3 </option>
+        <option value="4"> position 4 </option>
+    </select>
+    <button onclick="canvasToImage()" style="position:absolute; margin-top: 290; margin-left: 460px;"> generate image file </button>
+    <p id="canvasToImageOutput" style="position: absolute; margin-top: 310; margin-left: 400px;" width="200px" height="20px;"></p>
+    <p id="debugOut" style="position:absolute; margin-top: 700; margin-left: 450;"></p>
+    <p id="virtualConsolePort" style="position:absolute; overflow: scroll; background-color: black; color: white; height: 95%; width: 99%">  </p>
+    <button style="position:absolute;" onclick="virtualConsole.toggleConsole()">Console</button>
+</body>

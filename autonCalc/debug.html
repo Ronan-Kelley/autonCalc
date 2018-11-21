@@ -1,0 +1,48 @@
+<!doctype html>
+
+<head>
+    <title>
+        debug
+    </title>
+    <script>
+        function onload() {
+            var p2 = {
+                    x: 100,
+                    y: 100
+                },
+                p1 = {
+                    x: 111,
+                    y: 30.9
+                },
+                p3 = {
+                    x: 149.5,
+                    y: 149.5
+                },
+                diffX = p1.x - p2.x,
+                diffY = p1.y - p2.y,
+                radius = Math.abs(Math.sqrt(diffX * diffX + diffY * diffY)),
+                startAngle = Math.atan2(diffY, diffX),
+                endAngle = Math.atan2(p3.y - p2.y, p3.x - p2.x),
+                ctx = document.querySelector("canvas").getContext("2d");
+
+            // arc
+            ctx.arc(p2.x, p2.y, radius, startAngle, endAngle, false);
+            ctx.stroke();
+
+            // points / lines helpers:
+            ctx.fillRect(p1.x - 2, p1.y - 2, 4, 4);
+            ctx.fillRect(p2.x - 2, p2.y - 2, 4, 4);
+            ctx.fillRect(p3.x - 2, p3.y - 2, 4, 4);
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.x);
+            ctx.lineTo(p3.x, p3.x);
+            ctx.strokeStyle = "#999";
+            ctx.stroke();
+        }
+    </script>
+</head>
+
+<body onload="onload()">
+    <canvas id="myCanvas" height="300" width="300"></canvas>
+</body>

@@ -32,11 +32,6 @@ import javax.swing.Timer;
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ActionListener {
 
-	/**
-	 * conversion ratio is to convert between pixels and the actual distance.
-	 * right now it is 1, but once I get around to calculating it it'll
-	 * be something more accurate.
-	 */
 	public final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 	public JTextArea output = new JTextArea(16, 58);
@@ -52,7 +47,9 @@ public class Board extends JPanel implements ActionListener {
 
 	public boolean allowMove = true;
 
-	//enable the use of control as a modifier key, so that ctrl + q can exist
+	//TODO add graphical components for a fileIO front end
+
+	//used to make control a modifier key
 	public boolean modifierControlDown = false;
 
 	/*
@@ -97,7 +94,7 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void initBoard() {
-		/*
+		/* TODO
 		 * okay, so let's face it - this gui is NOT made professionally. Far from it.
 		 * It works, and that's great, but at some point, it should definitely get
 		 * a revamp - it's ugly, it doesn't follow good conventions, and if I'm
@@ -141,6 +138,7 @@ public class Board extends JPanel implements ActionListener {
 		//
 		// button actionlisteners
 		//
+		
 		inputButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				UMList.clear();

@@ -15,14 +15,6 @@ public class FileIO {
     private File[] files;
 
     //
-    // constructors
-    //
-
-    public FileIO() {
-
-    }
-
-    //
     // public methods
     //
 

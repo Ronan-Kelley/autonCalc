@@ -19,7 +19,7 @@ public class FileIO {
     //
 
     public FileIO() {
-        test("test1");
+
     }
 
     //
@@ -60,8 +60,8 @@ public class FileIO {
     private void readFiles() {
         // assign a folder to use as a root directory for autons
         folder = new File("src/resource/autons");
-        // make an array of all the files in the folder (note that this ignores
-        // subfolders)
+
+        // make an array of all the files in the folder (ignores subfolders)
         files = folder.listFiles();
     }
 

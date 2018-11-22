@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -45,9 +46,11 @@ public class Board extends JPanel implements ActionListener {
 	
 	public JButton focusButton = new JButton("return focus to board");
 
-	public boolean allowMove = true;
+	public JComboBox<String> autonDropdown;
+	public JButton submitAutonSelection = new JButton("submit auton selection");
 
-	//TODO add graphical components for a fileIO front end
+	//used in the keybinds to toggle freeze on controls
+	public boolean allowMove = true;
 
 	//used to make control a modifier key
 	public boolean modifierControlDown = false;
@@ -134,12 +137,17 @@ public class Board extends JPanel implements ActionListener {
 		scrollInput.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 		input.setEditable(true);
 		input.setBounds(900, 500, 70, 420);
+
+		//auton dropdown
+		autonDropdown = new JComboBox<String>(autonGrabber.getFileNames());
 		
 		//
 		// button actionlisteners
 		//
 		
 		inputButton.addActionListener(new ActionListener() {
+
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				UMList.clear();
 				sequencerReader.run(input.getText());
@@ -150,8 +158,20 @@ public class Board extends JPanel implements ActionListener {
 		});
 		
 		focusButton.addActionListener(new ActionListener() {
+
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				requestFocus();
+			}
+		});
+
+		submitAutonSelection.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String autonSelected = (String)autonDropdown.getSelectedItem();
+				String auton = autonGrabber.requestFileContents(autonSelected);
+				input.setText(auton);
 			}
 		});
 
@@ -164,6 +184,8 @@ public class Board extends JPanel implements ActionListener {
 		add(inputButton);
 		add(focusButton);
 		add(input);
+		add(autonDropdown);
+		add(submitAutonSelection);
 
 		//
 		// set up arena/markers

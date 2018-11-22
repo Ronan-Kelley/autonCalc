@@ -13,6 +13,15 @@ public class FileIO {
 
     private File folder;
     private File[] files;
+    private String[] fileNames;
+
+    //
+    // constructors
+    //
+
+    public FileIO() {
+        run();
+    }
 
     //
     // public methods
@@ -20,11 +29,12 @@ public class FileIO {
 
     public void run() {
         readFiles();
-    }
-
-    public void test(String fileName) {
-        run();
-        System.out.println("file contents:" + requestFileContents(fileName));
+        fileNames = new String[files.length];
+        int i = 0;
+        for (File tmp : files) {
+            fileNames[i] = tmp.getName();
+            i++;
+        }
     }
 
     public String requestFileContents(String fileName) {
@@ -63,5 +73,9 @@ public class FileIO {
 
     public File[] getListOfFiles() {
         return files;
+    }
+
+    public String[] getFileNames() {
+        return fileNames;
     }
 }

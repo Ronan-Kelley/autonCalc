@@ -27,7 +27,6 @@ public class UserMarker {
 	//rotation is in degrees, for I am but a puny human
 	private double rotation;
 	//lastAngle is in radians
-	//TODO lastAngle is still starting the rotation 90 degrees off from what the front of the bot would be considered
 	private double lastAngle, lastDistance; // angle and distance of this marker and the last one
 	private Boolean sameLine = true;
 	private Color color;

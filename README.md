@@ -6,9 +6,9 @@ arrow keys - move current marker
 
 enter - set position of current marker, create and swap control to new marker
 
-\[ - rotate counter-clockwise 15 degrees (currently strictly in code, not graphically)
+\[ - rotate counter-clockwise 15 degrees
 
-\] - rotate clockwise 15 degrees (currently strictly in code, not graphically)
+\] - rotate clockwise 15 degrees
 
 escape - freeze position of current marker
 

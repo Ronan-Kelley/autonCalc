@@ -41,8 +41,11 @@ public class FileIO {
         Scanner fileIn;
         String fileContents = "";
         for (File tmp : files) {
-            if (tmp.getName().toLowerCase().equals(fileName.toLowerCase()) || tmp.getName().toLowerCase().equals(fileName.toLowerCase() + ".java") || tmp.getName().toLowerCase().equals(fileName.toLowerCase() + ".txt") ) {
-                //if the requested file exists the exact name given, or a txt or java file exists with the same name, do this stuff
+            if (tmp.getName().toLowerCase().equals(fileName.toLowerCase())
+                    || tmp.getName().toLowerCase().equals(fileName.toLowerCase() + ".java")
+                    || tmp.getName().toLowerCase().equals(fileName.toLowerCase() + ".txt")) {
+                // if the requested file exists the exact name given, or a txt or java file
+                // exists with the same name, do this stuff
                 try {
                     fileIn = new Scanner(tmp);
                     fileContents = fileIn.useDelimiter("\\Z").next();

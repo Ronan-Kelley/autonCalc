@@ -11,7 +11,7 @@ public class Application extends JFrame {
 
 	public void initUI() {
 		add(new Board());
-		
+
 		setSize(1000, 700);
 
 		setTitle("auton creation tool v0.3");
@@ -28,10 +28,9 @@ public class Application extends JFrame {
 
 		EventQueue.invokeLater(() -> {
 			Application exe = new Application();
-			//start maximized
-			exe.setExtendedState(JFrame.MAXIMIZED_BOTH);
-			//uncomment for almost full screen
-			//			exe.setUndecorated(true);
+			// uncomment to start maximized (may be necessary to fix some graphical glitches
+			// on smaller monitors, breaks layout on larger ones until minimized)
+			// exe.setExtendedState(JFrame.MAXIMIZED_BOTH);
 			exe.setVisible(true);
 		});
 

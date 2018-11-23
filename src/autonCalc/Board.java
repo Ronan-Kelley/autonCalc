@@ -97,7 +97,7 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void initBoard() {
-		/* TODO
+		/* 
 		 * okay, so let's face it - this gui is NOT made professionally. Far from it.
 		 * It works, and that's great, but at some point, it should definitely get
 		 * a revamp - it's ugly, it doesn't follow good conventions, and if I'm
@@ -106,7 +106,7 @@ public class Board extends JPanel implements ActionListener {
 		 * 
 		 * if anyone wants to redesign the gui and knows how to, taking a stab at
 		 * it would be much appreciated - if not, I'm sure I'll get around to it
-		 * eventually.
+		 * eventually. Maybe.
 		 */
 
 		//

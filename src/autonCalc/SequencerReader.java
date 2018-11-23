@@ -9,10 +9,12 @@
 
 package autonCalc;
 
+import java.awt.Point;
 import java.util.ArrayList;
 import java.util.Arrays;
 
 public class SequencerReader {
+	private Point startingPos = new Point(50, 0);
 	private ArrayList<UserMarker> markers = new ArrayList<UserMarker>();
 	private ArrayList<String> initialSplit;
 	private ArrayList<String> finalSplit = new ArrayList<String>();
@@ -24,11 +26,11 @@ public class SequencerReader {
 	//
 
 	public SequencerReader() {
-		/*
-		 * *TODO in the future, this should probably take a starting position and
-		 * initialize the first UserMarker based on that, instead of just arbitrarily
-		 * setting it to the point 50, 50.
-		 */
+		// leave this blank, so that 50, 0 is the default (50, 0 seems to be roughly position 4)
+	}
+
+	public SequencerReader(int x, int y) {
+		startingPos = new Point(x, y);
 	}
 
 	//
@@ -36,7 +38,7 @@ public class SequencerReader {
 	//
 
 	public void run(String commands) {
-		markers.add(new UserMarker(50, 50, true));
+		markers.add(new UserMarker((int) startingPos.getX(), (int) startingPos.getY(), true));
 		buildCommands(commands);
 		buildMarkerValues();
 		buildMarkers();
@@ -62,8 +64,8 @@ public class SequencerReader {
 				// add newlines after all semicolons
 				.replace(";", ";\n")
 				/*
-				 * remove all lines (case insensitive) including: - package - addParallel -
-				 * import - public - requires - * - cube - robot - check - toggle
+				 * remove all lines (case insensitive) including: package, addParallel, import,
+				 * public, requires, *, cube, robot, check, toggle
 				 */
 				.replaceAll(
 						"(?mi)^package.*|addParallel.*|import.*|public.*|requires.*|elevator.*|robot.*|check.*|toggle.*|cube.*|\\*.*",
@@ -153,7 +155,7 @@ public class SequencerReader {
 			if (commandType != 2) {
 				commandVals.add(tempD);
 			} else if (commandType == 2) {
-				commandVals.add(new Double[] {2.0});
+				commandVals.add(new Double[] { 2.0 });
 				auton = curStr;
 			}
 		}
@@ -228,8 +230,14 @@ public class SequencerReader {
 
 		radius = Math.sqrt(((pivotX - oldX) * (pivotX - oldX)) + ((pivotY - oldY) * (pivotY - oldY)));
 
-		newX = pivotX + (radius * Math.cos(degree));
-		newY = pivotY + (radius * Math.sin(degree));
+		// newX = pivotX + (radius * Math.cos(degree));
+		// newY = pivotY + (radius * Math.sin(degree));
+
+		//doing the math this way seems slightly more accurate, but still not perfect...
+		Point newPoint = getPosition(new Point((int) pivotX, (int) pivotY), radius, degree);
+
+		newX = newPoint.getX();
+		newY = newPoint.getY();
 
 		UserMarker marker = new UserMarker((int) newX, (int) newY, true, markers.get(markers.size() - 1),
 				decimalArray[1], decimalArray[2], radius);
@@ -239,22 +247,24 @@ public class SequencerReader {
 
 	private void addOutsideAuton() {
 		/**
-		 * much as I dislike the memory-heavy nature of this method, I can't think of a better way to do it
+		 * much as I dislike the memory-heavy nature of this method, I can't think of a
+		 * better way to do it
 		 */
 
-		//initialize necessary objects
+		// initialize necessary objects
 		FileIO fileIO = new FileIO();
 		SequencerReader sequencerReader = new SequencerReader();
 
 		sequencerReader.run(fileIO.requestFileContents(auton));
 
-		//store the current state of the Markers list to later append
-		markers.remove(0); //remove the first UserMarker entry at 50, 50
+		// store the current state of the Markers list to later append
+		markers.remove(0); // remove the first UserMarker entry at 50, 50
 		ArrayList<UserMarker> tempMarkers = new ArrayList<UserMarker>(markers);
-		// markers.clear(); //this shouldn't actually be necesssary, but for now I'll just comment it out
+		// markers.clear(); //this shouldn't actually be necesssary, but for now I'll
+		// just comment it out
 		markers = new ArrayList<UserMarker>(sequencerReader.getMarkers());
-		
-		//append the old markers array to the new one
+
+		// append the old markers array to the new one
 		for (UserMarker tmp : tempMarkers) {
 			markers.add(tmp);
 		}
@@ -266,6 +276,14 @@ public class SequencerReader {
 		initialSplit.clear();
 		finalSplit.clear();
 		commandVals.clear();
+	}
+
+	private Point getPosition(Point center, double radius, double angle) {
+		//taken from https://stackoverflow.com/questions/13231797/how-to-calculate-the-cordinates-of-end-point-in-an-arc-if-center-and-starting-co
+		Point p = new Point((int) (center.x + radius * Math.cos(Math.toRadians(angle))),
+		(int) (center.y + radius* Math.sin(Math.toRadians(angle))));
+	
+		return p;
 	}
 
 	//

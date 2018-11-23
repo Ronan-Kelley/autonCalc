@@ -17,6 +17,7 @@ package autonCalc;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 
 public class UserMarker {
 	private int xPos, yPos;
@@ -201,13 +202,11 @@ public class UserMarker {
 	//
 
 	public void draw(Graphics g) {
-		/*
-		 * should maybe be passed to paint component? Not sure I understand well enough which one
-		 * I should actually be using, so I'll stick to calling this with paint()
-		 */
-
-		g.setColor(color);
-		g.fillRect(this.xPos, this.yPos, this.width, this.height);
+		Graphics2D g2d = (Graphics2D) g.create();
+		g2d.setColor(getColor());
+		g2d.rotate(Math.toRadians(getRotation()), getXPos() + getWidth()/2, getYPos() + getHeight()/2);
+		g2d.fillRect(getXPos(), getYPos(), getWidth(), getHeight());
+		g2d.dispose();
 	}
 
 	//

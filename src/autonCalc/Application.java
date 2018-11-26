@@ -14,7 +14,7 @@ public class Application extends JFrame {
 
 		setSize(1000, 700);
 
-		setTitle("auton creation tool v0.3");
+		setTitle("auton creation tool v1");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLocationRelativeTo(null);
 	}

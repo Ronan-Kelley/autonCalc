@@ -106,7 +106,7 @@ public class Board extends JPanel implements ActionListener {
 		 * 
 		 * if anyone wants to redesign the gui and knows how to, taking a stab at
 		 * it would be much appreciated - if not, I'm sure I'll get around to it
-		 * eventually. Maybe.
+		 * eventually. probably.
 		 */
 
 		//

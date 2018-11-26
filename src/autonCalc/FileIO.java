@@ -1,7 +1,12 @@
 package autonCalc;
-//!!!IMPORTANT!!! do NOT upload autons to github if using the files to test with this,
-
-//that is NOT our property and we do NOT have permission.
+/**
+ * 
+ * !!!IMPORTANT!!!
+ * do NOT upload autons to github if using the files to test with this,
+ * that is NOT our property and we do NOT have permission.
+ * !!!IMPORTANT!!!
+ * 
+ **/
 
 import java.io.File;
 import java.util.Scanner;

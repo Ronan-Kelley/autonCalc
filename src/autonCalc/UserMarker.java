@@ -43,10 +43,11 @@ public class UserMarker {
 		setXPos(lastMarker.getXPos());
 		setYPos(lastMarker.getYPos());
 		setSameLine(sameLine);
-		setHeight(30);
-		setWidth(30);
+		setHeight(lastMarker.getHeight());
+		setWidth(lastMarker.getWidth());
 		calcCenter();
-		setRotation(0);
+		setRotation(lastMarker.getRotation());
+		setColor(lastMarker.getColor());
 		setLastMarker(lastMarker);
 	}
 
@@ -97,6 +98,7 @@ public class UserMarker {
 		setWidth(marker.getWidth());
 		setRotation(marker.getRotation());
 		setLastMarker(marker.getLastMarker());
+		setColor(marker.getColor());
 		calcCenter();
 	}
 

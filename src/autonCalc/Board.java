@@ -20,7 +20,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.geom.Arc2D;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -374,36 +373,62 @@ public class Board extends JPanel implements ActionListener {
 		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
 	}
 
+	public void setMark(Boolean sameLine, boolean curved) {
+		// overload for setting arcIndex
+
+		if (curved) {
+			UMList.get(UMList.size()-1).setArcIndex(arcList.size()-1);
+		}
+
+		//make sure that the necessary information is calculated, but only when it actually can be.
+		if (UMList.size() >= 2) {
+			UMList.get(UMList.size()-1).calcAngleDistance();
+		}
+
+		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
+	}
+
 	public void drawCurve(int x, int y) {
 		if (curveStage == 0) {
 
-			arcBuilder.setX(x);
-			arcBuilder.setY(y);
+			arcBuilder.setX0(x);
+			arcBuilder.setY0(y);
 
 			curveStage = 1;
 		} else if (curveStage == 1) {
-			arcBuilder.setX1(x);
-			arcBuilder.setY1(y);
+			arcBuilder.setXa(x);
+			arcBuilder.setYa(y);
 			arcBuilder.calcRadius();
+			setMark(false);
 
 			curveStage = 2;
 		} else if (curveStage == 2) {
 
-			arcBuilder.setX2(x);
-			arcBuilder.setY2(y);
-			arcBuilder.genAngs();
+			boolean tmp = allowMove;
+			allowMove = false;
+
+			arcBuilder.setXd(x);
+			arcBuilder.setYd(y);
+			arcBuilder.build();
 
 			arcList.add(arcBuilder.copy());
 
 			arcBuilder.reset();
 
+			setMark(true, true);
+
 			curveStage = 0;
+
+			allowMove = tmp;
 		}
 	}
 
 	public void undoMarker() {
 		//simply remove the most recent userMarker to re-establish control of a previous one
 		if (UMList.size() > 1) {
+			if (UMList.get(UMList.size()-1).getArcIndex() != -1) {
+				arcList.remove(UMList.get(UMList.size()-1).getArcIndex());
+			}
 			UMList.remove(UMList.size()-1);
 		}
 	}
@@ -460,9 +485,17 @@ public class Board extends JPanel implements ActionListener {
 					marker.calcAngleDistance();
 				}
 
-				double lastAngle = Math.toDegrees(marker.getLastAngle());
-				//this could be a potential issue, I don't know if conversionRatio will mess up angle calculations
-				double lastDistance = marker.getLastDistance();	
+				double lastAngle, lastDistance;
+				if (marker.getArcIndex() == -1) {
+					lastAngle = Math.toDegrees(marker.getLastAngle());
+					//this could be a potential issue, I don't know if conversionRatio will mess up angle calculations
+					lastDistance = marker.getLastDistance();	
+				} else {
+					lastAngle = arcList.get(marker.getArcIndex()).getArc().getAngleExtent();
+					lastDistance = Math.abs(2 * Math.PI * arcList.get(marker.getArcIndex()).getWidth()) / Math.abs(lastAngle / 360);
+					lastDistance *= UserMarker.inchesPerPixel;
+				}
+				
 
 				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
 			}
@@ -521,12 +554,12 @@ public class Board extends JPanel implements ActionListener {
 		}
 
 		if (curveStage == 1) {
-			g.drawLine(arcBuilder.getX(), arcBuilder.getY(), (int) mouseXpos, (int) mouseYpos);
+			g.drawLine(arcBuilder.getX0(), arcBuilder.getY0(), (int) mouseXpos, (int) mouseYpos);
 		}
 
 		if (curveStage == 2) {
-			g.drawLine(arcBuilder.getX(), arcBuilder.getY(), arcBuilder.getX1(), arcBuilder.getY1());
-			g.drawLine(arcBuilder.getX(), arcBuilder.getY(), (int) mouseXpos, (int) mouseYpos);
+			g.drawLine(arcBuilder.getX0(), arcBuilder.getY0(), arcBuilder.getXa(), arcBuilder.getYa());
+			g.drawLine(arcBuilder.getX0(), arcBuilder.getY0(), (int) mouseXpos, (int) mouseYpos);
 		}
 	}
 
@@ -534,9 +567,8 @@ public class Board extends JPanel implements ActionListener {
 		Graphics2D g2 = (Graphics2D) g;
 		g2.setColor(Color.BLUE);
 		g2.setStroke(new BasicStroke(3));
-		g2.draw(new Arc2D.Double(50, 50, 30, 30, 90, 90, Arc2D.OPEN));
 		for (ArcInfo arc : arcList) {
-			g2.draw(arc.generateArc2D());
+			g2.draw(arc.getArc());
 		}
 	}
 

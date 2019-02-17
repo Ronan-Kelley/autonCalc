@@ -34,6 +34,7 @@ public class UserMarker {
 	private UserMarker lastMarker = null;
 	private Boolean circle = false;
 	private double circleX, circleY, radius;
+	private int arcIndex = -1;
 	public static final double inchesPerPixel = 0.731515152;
 
 	//
@@ -50,6 +51,19 @@ public class UserMarker {
 		setRotation(lastMarker.getRotation());
 		setColor(lastMarker.getColor());
 		setLastMarker(lastMarker);
+	}
+
+	public UserMarker(UserMarker lastMarker, Boolean sameLine, int arcIndex) {
+		setXPos(lastMarker.getXPos());
+		setYPos(lastMarker.getYPos());
+		setSameLine(sameLine);
+		setHeight(lastMarker.getHeight());
+		setWidth(lastMarker.getWidth());
+		calcCenter();
+		setRotation(lastMarker.getRotation());
+		setColor(lastMarker.getColor());
+		setLastMarker(lastMarker);
+		this.arcIndex = arcIndex;
 	}
 
 	public UserMarker(int x, int y, Boolean sameLine) {
@@ -226,6 +240,14 @@ public class UserMarker {
 	//
 	// getters/setters
 	//
+
+	public int getArcIndex() {
+		return this.arcIndex;
+	}
+
+	public void setArcIndex(int index) {
+		this.arcIndex = index;
+	}
 
 	public int getXPos() {
 		return xPos;

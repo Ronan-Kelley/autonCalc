@@ -5,8 +5,6 @@
  * code.
  */
 
-//TODO fix rotateDegree (running through fourScaleL makes it seem like it doesn't work? I'm unsure, it certainly doesn't draw the circle correctly)
-
 package autonCalc;
 
 import java.awt.Point;
@@ -238,14 +236,14 @@ public class SequencerReader {
 		commandVals.clear();
 	}
 
-	private Point getPosition(Point center, double radius, double angle) {
-		// taken from
-		// https://stackoverflow.com/questions/13231797/how-to-calculate-the-cordinates-of-end-point-in-an-arc-if-center-and-starting-co
-		Point p = new Point((int) (center.x + radius * Math.cos(Math.toRadians(angle))),
-				(int) (center.y + radius * Math.sin(Math.toRadians(angle))));
+	// private Point getPosition(Point center, double radius, double angle) {
+	// 	// taken from
+	// 	// https://stackoverflow.com/questions/13231797/how-to-calculate-the-cordinates-of-end-point-in-an-arc-if-center-and-starting-co
+	// 	Point p = new Point((int) (center.x + radius * Math.cos(Math.toRadians(angle))),
+	// 			(int) (center.y + radius * Math.sin(Math.toRadians(angle))));
 
-		return p;
-	}
+	// 	return p;
+	// }
 
 	//
 	// getters and setters

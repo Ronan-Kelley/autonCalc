@@ -3,54 +3,65 @@ package autonCalc;
 import java.awt.geom.Arc2D;
 
 public class ArcInfo {
-    private int x, x1, x2;
-    private int y, y1, y2;
+    private int x0, xa, xd;
+    private int y0, ya, yd;
+    private int endX, endY;
     private int width;
     private int height;
     private double startAng;
     private double endAng;
     private double type = Arc2D.PIE;
+    private Arc2D arc;
 
     public ArcInfo() {
 
     }
 
     public ArcInfo(ArcInfo oldObj) {
-        this.x = oldObj.getX();
-        this.x1 = oldObj.getX1();
-        this.x2 = oldObj.getX2();
-        this.y = oldObj.getY();
-        this.y1 = oldObj.getY1();
-        this.y2 = oldObj.getY2();
+        this.x0 = oldObj.getX0();
+        this.xa = oldObj.getXa();
+        this.xd = oldObj.getXd();
+        this.y0 = oldObj.getY0();
+        this.ya = oldObj.getYa();
+        this.yd = oldObj.getYd();
         this.width = oldObj.getWidth();
         this.height = oldObj.getHeight();
         this.startAng = oldObj.getStartAng();
         this.endAng = oldObj.getEndAng();
         this.type = oldObj.getType();
+        this.arc = oldObj.getArc();
     }
 
-    public int getX() {
-        return x;
+    public int getX0() {
+        return x0;
     }
 
-    public int getX1() {
-        return x1;
+    public int getXa() {
+        return xa;
     }
 
-    public int getX2() {
-        return x2;
+    public int getXd() {
+        return xd;
     }
 
-    public int getY() {
-        return y;
+    public int getY0() {
+        return y0;
     }
 
-    public int getY1() {
-        return y1;
+    public int getEndX() {
+        return endX;
     }
 
-    public int getY2() {
-        return y2;
+    public int getYa() {
+        return ya;
+    }
+
+    public int getYd() {
+        return yd;
+    }
+
+    public int getEndY() {
+        return endY;
     }
 
     public int getWidth() {
@@ -73,28 +84,28 @@ public class ArcInfo {
         return type;
     }
 
-    public void setX(int x) {
-        this.x = x;
+    public void setX0(int x0) {
+        this.x0 = x0;
     }
 
-    public void setX1(int x1) {
-        this.x1 = x1;
+    public void setXa(int xa) {
+        this.xa = xa;
     }
 
-    public void setX2(int x2) {
-        this.x2 = x2;
+    public void setXd(int xd) {
+        this.xd = xd;
     }
 
-    public void setY(int y) {
-        this.y = y;
+    public void setY0(int y0) {
+        this.y0 = y0;
     }
 
-    public void setY1(int y1) {
-        this.y1 = y1;
+    public void setYa(int ya) {
+        this.ya = ya;
     }
 
-    public void setY2(int y2) {
-        this.y2 = y2;
+    public void setYd(int yd) {
+        this.yd = yd;
     }
 
     public void setWidth(int width) {
@@ -117,82 +128,102 @@ public class ArcInfo {
         this.type = type;
     }
 
-    public Arc2D generateArc2D() {
-        return new Arc2D.Double(x, y, width, height, startAng, endAng, (int) type);
-    }
-
     public ArcInfo copy() {
         return new ArcInfo(this);
     }
 
-    public void checkX2Y2() {
-        double ang2 = Math.toDegrees(Math.acos((x2 - x) / calcDistance(x, y, x2, y2)));
-        double dist2 = (x2 - x) / (Math.toDegrees(Math.cos(ang2)));
+    public Arc2D getArc() {
+        return arc;
+    }
 
-        double newX2, newY2;
+    public void checkXdYd() {
+        double ang2 = Math.toDegrees(Math.acos((xd - x0) / calcDistance(x0, y0, xd, yd)));
+        double dist2 = (xd - x0) / (Math.toDegrees(Math.cos(ang2)));
+
+        double newXd, newYd;
         if (dist2 > width) {
-            newX2 = x + width * Math.cos(ang2);
-            newY2 = y + width * Math.sin(ang2);
-            this.x2 = (int) newX2; 
-            this.y2 = (int) newY2;
+            newXd = x0 + width * Math.cos(ang2);
+            newYd = y0 + width * Math.sin(ang2);
+            this.xd = (int) newXd; 
+            this.yd = (int) newYd;
+        } else if (dist2 < width) {
+            newXd = x0 + width * Math.cos(ang2);
+            newYd = y0 + width * Math.sin(ang2);
+            this.xd = (int) newXd;
+            this.yd = (int) newYd;
         }
     }
 
-    public void genAngs() {
-        // calc starting degrees (variation of newx = oldx + distance * cos(ang))
-        double firstStageAng = Math.toDegrees(Math.acos((x1 - x) / calcDistance(x, y, x1, y1)));
-        double hypLength = calcDistance(x2, y2, x1, y1);
-        double secondStageAng = Math.toDegrees(Math.acos(((Math.pow(hypLength, 2) - Math.pow(width, 2) - Math.pow(width, 2)) / (-2 * width * width))));
-        
-        if (y1 > y) {
-            if (x1 < x) {
-                firstStageAng += 90;
-            } else {
-                firstStageAng += 180;
-            }
+    public void build() {
+        // get radii of anchor/det point
+        double ra = dist0(xa, ya);
+        double rd = dist0(xd, yd);
+
+        // if either is 0, something is wrong
+        if (ra == 0 || rd == 0) {
+            startAng = 0;
+            endAng = 0;
         }
-        // if (y2 > y) {
-        //     if (x2 < x) {
-        //         secondStageAng += 90;
-        //     } else {
-        //         secondStageAng += 180;
-        //     }
-        // }
 
-        firstStageAng %= 360;
+        // get the angles from center to points
+        double aa = angle0(xa, ya);
+        double ad = angle0(xd, yd);
 
-        // if (firstStageAng > secondStageAng) {
-        //     this.startAng = secondStageAng;
-        //     this.endAng = firstStageAng;
-        // } else {
-        //     this.startAng = firstStageAng;
-        //     this.endAng = secondStageAng;
-        // }
+        // build the arc
+        arc = new Arc2D.Double(x0 - ra, y0 - ra, 2 * ra, 2 * ra, aa, angleDiff(aa, ad), (int) this.type);
 
-        this.startAng = firstStageAng;
-        this.endAng = secondStageAng;
-
-        System.out.println("firstStageAng/secondStageAng: " + firstStageAng + "/" + secondStageAng);
+        // set end x/y
+        double startAngle = Math.toDegrees(Math.atan2(xa - x0, ya - y0));
+        this.endX = (int) (x0 + this.width * Math.cos(startAngle + angleDiff(aa, ad)));
+        this.endY = (int) (y0 + this.width * Math.sin(startAngle + angleDiff(aa, ad)));
+        System.out.println(endX + ", " + endY);
 
     }
 
     public double calcDistance(double x, double y, double x1, double y1) {
 		// returns distance formula output
-		return Math.sqrt(((x1 - x) * (x1 - x)) + ((y1 - y) * (y1 - y)));
+		return Math.sqrt(sqr(x1 - x) + sqr(y1 - y));
+    }
+
+    public double angle0(double x, double y) {
+        // return angle of args from center
+        return Math.toDegrees(Math.atan2(y0 - y, x - x0));
+    }
+
+    public double dist0(double x, double y) {
+        // return distance of args from center
+        return Math.sqrt(sqr(x - x0) + sqr(y - y0));
+    }
+
+    public double angleDiff(double a, double b) {
+        // returns difference in angles
+        double d = b - a;
+        while (d >= 180) {
+            d -= 360;
+        }
+        while (d < -180) {
+                d += 360;
+        }
+        return d;
+    }
+
+    public double sqr(double arg) {
+        // squares input
+        return arg*arg;
     }
     
     public void calcRadius() {
-        this.width = (int) calcDistance(x, y, x1, y1);
+        this.width = (int) calcDistance(x0, y0, xa, ya);
         this.height = this.width;
     }
 
     public void reset() {
-        this.x = 0;
-        this.x1 = 0;
-        this.x2 = 0;
-        this.y = 0;
-        this.y1 = 0;
-        this.y2 = 0;
+        this.x0 = 0;
+        this.xa = 0;
+        this.xd = 0;
+        this.y0 = 0;
+        this.ya = 0;
+        this.yd = 0;
         this.height = 0;
         this.width = 0;
         this.startAng = 0;

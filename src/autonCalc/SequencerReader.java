@@ -26,7 +26,8 @@ public class SequencerReader {
 	//
 
 	public SequencerReader() {
-		// leave this blank, so that 50, 0 is the default (50, 0 seems to be roughly position 4)
+		// leave this blank, so that 50, 0 is the default (50, 0 seems to be roughly
+		// position 4)
 	}
 
 	public SequencerReader(int x, int y) {
@@ -101,36 +102,36 @@ public class SequencerReader {
 		 */
 
 		for (String curStr : finalSplit) {
-			/*
-			 * this is messy, if anyone has a better way of doing it, feel free!
-			 */
 
 			System.out.println(curStr);
 
 			double commandType = -1;
 
 			/*
-			 * this if statement here works similarly to how file headers to - depending on
+			 * this if statement here works similarly to how file headers do - depending on
 			 * the value of the first set of switches (in this case, the value of the first
 			 * decimal), the data is read differently. In binary files, this helps the OS
 			 * executing them know if the program is 32 bit or 64 bit, as well as what type
 			 * of binary it is (I.E., binaries compiled on linux are ELF binaries)
 			 */
 			if (curStr.toLowerCase().indexOf("driveto") != -1) {
-				// commandType 0 = a driveTo command
+				// commandType 0 = a DriveTo command
 				commandType = 0;
-			} else if (curStr.toLowerCase().indexOf("rotatedegree") != -1) {
-				// commandType 1 = a rotateDegree command
+			} else if (curStr.toLowerCase().indexOf("rotateabsolute") != -1) {
+				// commandType 1 = a RotateAbsolute command
 				commandType = 1;
-			} else if (curStr.toLowerCase().indexOf("scale") != -1 || curStr.toLowerCase().indexOf("switch") != -1) {
-				// commandType 2 = a command that executes a different auton
+			} else if (curStr.toLowerCase().indexOf("rotate") != -1) {
+				// commandType 2 = a rotate command
 				commandType = 2;
+			} else if (curStr.toLowerCase().indexOf("curveddrive") != -1) {
+				// commandType 3 = a CurvedDrive command
+				commandType = 3;
 			}
 
 			// remove all text from the string, keep numbers and commas
-			curStr = curStr.replaceAll("(?i:driveto\\(|rotatedegree\\(|\\))|\\(\\)", "");
+			curStr = curStr.replaceAll("(?i:driveto\\(|rotateabsolute\\(|rotate\\(|curveddrive\\(|\\))|\\(\\)", "");
 
-			// create a temporary array of strings, each string should just be the
+			// create a temporary array of strings, each string should just be
 			// a decimal number
 			String[] temp = curStr.split(",");
 			// not sure how else to add the arrays as complete arrays
@@ -140,24 +141,18 @@ public class SequencerReader {
 			// start at 1 instead of 0 since the header takes up the first position
 			int i = 1;
 
-			if (commandType != 2) {
-				for (String tempString : temp) {
-					try {
-						tempD[i] = Double.parseDouble(tempString);
-					} catch (Exception NumberFormatException) {
+			for (String tempString : temp) {
+				try {
+					tempD[i] = Double.parseDouble(tempString);
+				} catch (Exception NumberFormatException) {
 
-					} finally {
-						i++;
-					}
+				} finally {
+					i++;
 				}
 			}
 
-			if (commandType != 2) {
-				commandVals.add(tempD);
-			} else if (commandType == 2) {
-				commandVals.add(new Double[] { 2.0 });
-				auton = curStr;
-			}
+			commandVals.add(tempD);
+
 		}
 
 		for (Double[] commandVal : commandVals) {
@@ -181,9 +176,11 @@ public class SequencerReader {
 			if (decimalArray[0] == 0.0) {
 				markers.add(driveToMarker(decimalArray));
 			} else if (decimalArray[0] == 1.0) {
-				markers.add(rotateDegreeMarker(decimalArray));
+				markers.add(rotateAbsoluteMarker(decimalArray));
 			} else if (decimalArray[0] == 2.0) {
-				addOutsideAuton();
+				markers.add(rotateMarker(decimalArray));
+			} else if (decimalArray[0] == 3.0) {
+				markers.add(curvedDriveMarker(decimalArray));
 			}
 
 		}
@@ -219,56 +216,19 @@ public class SequencerReader {
 		return marker;
 	}
 
-	private UserMarker rotateDegreeMarker(Double[] decimalArray) {
-		double oldX = markers.get(markers.size() - 1).getCenterX();
-		double oldY = markers.get(markers.size() - 1).getCenterY();
-		double pivotX = oldX + decimalArray[1];
-		double pivotY = oldY + decimalArray[2];
-		double degree = decimalArray[3];
-		// decimalArray[4] contains a value for speed - which is useless in this context
-		double newX, newY, radius;
+	private UserMarker rotateAbsoluteMarker(Double[] args) {
 
-		radius = Math.sqrt(((pivotX - oldX) * (pivotX - oldX)) + ((pivotY - oldY) * (pivotY - oldY)));
-
-		// newX = pivotX + (radius * Math.cos(degree));
-		// newY = pivotY + (radius * Math.sin(degree));
-
-		//doing the math this way seems slightly more accurate, but still not perfect...
-		Point newPoint = getPosition(new Point((int) pivotX, (int) pivotY), radius, degree);
-
-		newX = newPoint.getX();
-		newY = newPoint.getY();
-
-		UserMarker marker = new UserMarker((int) newX, (int) newY, true, markers.get(markers.size() - 1),
-				decimalArray[1], decimalArray[2], radius);
-
-		return marker;
+		return null;
 	}
 
-	private void addOutsideAuton() {
-		/**
-		 * much as I dislike the memory-heavy nature of this method, I can't think of a
-		 * better way to do it
-		 */
+	private UserMarker rotateMarker(Double[] args) {
 
-		// initialize necessary objects
-		FileIO fileIO = new FileIO();
-		SequencerReader sequencerReader = new SequencerReader();
+		return null;
+	}
 
-		sequencerReader.run(fileIO.requestFileContents(auton));
+	private UserMarker curvedDriveMarker(Double[] args) {
 
-		// store the current state of the Markers list to later append
-		markers.remove(0); // remove the first UserMarker entry at 50, 50
-		ArrayList<UserMarker> tempMarkers = new ArrayList<UserMarker>(markers);
-		// markers.clear(); //this shouldn't actually be necesssary, but for now I'll
-		// just comment it out
-		markers = new ArrayList<UserMarker>(sequencerReader.getMarkers());
-
-		// append the old markers array to the new one
-		for (UserMarker tmp : tempMarkers) {
-			markers.add(tmp);
-		}
-
+		return null;
 	}
 
 	public void clearMem() {
@@ -279,10 +239,11 @@ public class SequencerReader {
 	}
 
 	private Point getPosition(Point center, double radius, double angle) {
-		//taken from https://stackoverflow.com/questions/13231797/how-to-calculate-the-cordinates-of-end-point-in-an-arc-if-center-and-starting-co
+		// taken from
+		// https://stackoverflow.com/questions/13231797/how-to-calculate-the-cordinates-of-end-point-in-an-arc-if-center-and-starting-co
 		Point p = new Point((int) (center.x + radius * Math.cos(Math.toRadians(angle))),
-		(int) (center.y + radius* Math.sin(Math.toRadians(angle))));
-	
+				(int) (center.y + radius * Math.sin(Math.toRadians(angle))));
+
 		return p;
 	}
 

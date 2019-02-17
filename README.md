@@ -4,7 +4,7 @@ made for FIRST FRC, this program aims to enable the creation, design, and export
 # controls
 arrow keys - move current marker
 
-enter - set position of current marker, create and swap control to new marker
+enter or left click - set position of current marker, create and swap control to new marker
 
 \[ - rotate counter-clockwise 15 degrees
 
@@ -17,7 +17,7 @@ ctrl + c - clear all on screen markers
 backspace - remove the latest marker on screen
 
 # coaching specific controls
-backslash - set position of current marker, create and swap control to new marker that doen't connect to the current line
+backslash or right click - set position of current marker, create and swap control to new marker that doen't connect to the current line
 
 x - shift through enemy team colors
 

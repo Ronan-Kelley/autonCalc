@@ -34,6 +34,7 @@ public class UserMarker {
 	private UserMarker lastMarker = null;
 	private Boolean circle = false;
 	private double circleX, circleY, radius;
+	public static final double inchesPerPixel = 0.731515152;
 
 	//
 	// constructors
@@ -115,6 +116,13 @@ public class UserMarker {
 		calcCenter();
 	}
 
+	public void updatePos(int x, int y) {
+		this.setXPos(x);
+		this.setYPos(y);
+
+		calcCenter();
+	}
+
 	public void rotate(double degrees, Boolean clockwise) {
 		if (clockwise) {
 			setRotation(getRotation()+degrees);
@@ -167,6 +175,10 @@ public class UserMarker {
 		break;
 		}
 		this.updatePos();
+	}
+
+	public void mouseMove(double x, double y) {
+		this.updatePos((int) (x - this.getWidth()/2), (int) (y - this.getHeight()/2));
 	}
 
 	//
@@ -327,7 +339,7 @@ public class UserMarker {
 	}
 
 	public double getLastDistance() {
-		return lastDistance;
+		return lastDistance * inchesPerPixel;
 	}
 
 	public void setLastDistance(UserMarker lastMarker) {

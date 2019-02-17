@@ -6,9 +6,11 @@
 
 package autonCalc;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Label;
 import java.awt.Toolkit;
@@ -16,6 +18,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.geom.Arc2D;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -23,7 +28,6 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
@@ -37,20 +41,21 @@ public class Board extends JPanel implements ActionListener {
 
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
-	
-	public JTextArea input = new JTextArea(16, 58);
-	public JScrollPane scrollInput = new JScrollPane(input);
-	
-	public JButton inputButton = new JButton("display auton input");
-	public Label coords = new Label();
-	
-	public JButton focusButton = new JButton("return focus to board");
 
-	public JComboBox<String> autonDropdown;
-	public JButton submitAutonSelection = new JButton("submit auton selection");
+	public Label coords = new Label();
+
+	public JButton focusButton = new JButton("restore focus");
 
 	//used in the keybinds to toggle freeze on controls
 	public boolean allowMove = true;
+
+	// used in drawing curved drives
+	public int curveStage = 0;
+	public ArcInfo arcBuilder = new ArcInfo();
+
+	// save mouse pos
+	public double mouseXpos;
+	public double mouseYpos;
 
 	//used to make control a modifier key
 	public boolean modifierControlDown = false;
@@ -67,6 +72,7 @@ public class Board extends JPanel implements ActionListener {
 	// this array list is public so that it can be used in the class that calculates
 	// results
 	public ArrayList<UserMarker> UMList = new ArrayList<UserMarker>();
+	public ArrayList<ArcInfo> arcList = new ArrayList<ArcInfo>();
 
 	// milliseconds, event handler
 	Timer timer = new Timer(5, this);
@@ -81,9 +87,6 @@ public class Board extends JPanel implements ActionListener {
 	//reading pre-made autons
 	public SequencerReader sequencerReader = new SequencerReader();
 	public Boolean drawPremadeAuton = false;
-
-	//reading pre-made autons from a folder of them
-	public FileIO autonGrabber = new FileIO();
 
 	/*
 	 * 
@@ -112,7 +115,7 @@ public class Board extends JPanel implements ActionListener {
 		//
 		//initialize board's settings
 		//
-		setBorder(BorderFactory.createEmptyBorder(0, 400, 0, 0));
+		setBorder(BorderFactory.createEmptyBorder(450, 0, 0, 0));
 		
 		setSize(screenSize);
 		setPreferredSize(screenSize);
@@ -132,46 +135,15 @@ public class Board extends JPanel implements ActionListener {
 		output.setEditable(false);
 		scroll.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
 
-		//inputbutton
-		inputButton.setLocation(500, 900);
-		scrollInput.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
-		input.setEditable(true);
-		input.setBounds(900, 500, 70, 420);
-
-		//auton dropdown
-		autonDropdown = new JComboBox<String>(autonGrabber.getFileNames());
-		
 		//
-		// button actionlisteners
+		// add event listeners
 		//
-		
-		inputButton.addActionListener(new ActionListener() {
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				UMList.clear();
-				sequencerReader.run(input.getText());
-				UMList.addAll(sequencerReader.getMarkers());
-				setMark(true);
-				sequencerReader.clearMem();
-			}
-		});
-		
 		focusButton.addActionListener(new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				requestFocus();
-			}
-		});
-
-		submitAutonSelection.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				String autonSelected = (String)autonDropdown.getSelectedItem();
-				String auton = autonGrabber.requestFileContents(autonSelected);
-				input.setText(auton);
 			}
 		});
 
@@ -181,11 +153,7 @@ public class Board extends JPanel implements ActionListener {
 
 		add(coords);
 		add(output);
-		add(inputButton);
 		add(focusButton);
-		add(input);
-		add(autonDropdown);
-		add(submitAutonSelection);
 
 		//
 		// set up arena/markers
@@ -194,6 +162,38 @@ public class Board extends JPanel implements ActionListener {
 		loadArenaImage(); //load image FIRST so that it has lowest z index
 		initObjs(); //create the first UserMarker, add it to UMList
 		updateCoords(); //initial drawing of coords
+
+		//
+		// mouse listener
+		//
+
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent me) {
+				if (me.getButton() == MouseEvent.BUTTON1) {
+					setMark(true);
+				} else if (me.getButton() == MouseEvent.BUTTON3) {
+					setMark(false);
+				} else if (me.getButton() == MouseEvent.BUTTON2) {
+					drawCurve(me.getX(), me.getY());
+				}
+			}
+		});
+
+		//
+		// mouse movement listener
+		//
+		addMouseMotionListener(new MouseAdapter() {
+			@Override
+			public void mouseMoved(MouseEvent me) {
+				if (allowMove) {
+					UMList.get(UMList.size() - 1).mouseMove(me.getX(), me.getY());
+				}
+
+				mouseXpos = me.getX();
+				mouseYpos = me.getY();
+			}
+		});
 		
 		//
 		// key listener
@@ -297,6 +297,7 @@ public class Board extends JPanel implements ActionListener {
 					if (modifierControlDown == true) { //require the control key to be pressed to activate
 						//clears on ctrl + c
 						UMList.clear();
+						arcList.clear();
 						initObjs();
 					} else if (modifierControlDown == false) {
 						cycleColor(false); // false is for friendly colors	
@@ -345,7 +346,7 @@ public class Board extends JPanel implements ActionListener {
 		/*
 		 * load the field image, taken from FIRST
 		 */
-		ImageIcon iId = new ImageIcon("src/resource/backgroundImage.png");
+		ImageIcon iId = new ImageIcon("src/resource/backgroundImage2019.png");
 		backgroundImage = iId.getImage();
 	}
 
@@ -371,6 +372,33 @@ public class Board extends JPanel implements ActionListener {
 		}
 
 		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
+	}
+
+	public void drawCurve(int x, int y) {
+		if (curveStage == 0) {
+
+			arcBuilder.setX(x);
+			arcBuilder.setY(y);
+
+			curveStage = 1;
+		} else if (curveStage == 1) {
+			arcBuilder.setX1(x);
+			arcBuilder.setY1(y);
+			arcBuilder.calcRadius();
+
+			curveStage = 2;
+		} else if (curveStage == 2) {
+
+			arcBuilder.setX2(x);
+			arcBuilder.setY2(y);
+			arcBuilder.genAngs();
+
+			arcList.add(arcBuilder.copy());
+
+			arcBuilder.reset();
+
+			curveStage = 0;
+		}
 	}
 
 	public void undoMarker() {
@@ -403,8 +431,7 @@ public class Board extends JPanel implements ActionListener {
 		int Y = UMList.get(UMList.size() - 1).getYPos();
 
 		coords.setText(
-				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]"
-				);
+				"current coords: " + X + ", " + Y + "; " + degreesString + " [x,y; rotation]");
 	}
 
 	public void outputInformation() {
@@ -429,7 +456,7 @@ public class Board extends JPanel implements ActionListener {
 				 * don't calculate a lastAngle or lastDistance when this 
 				 * function is called, this if statements seems to fix that
 				 */
-				if (marker.getLastDistance() == 0 || marker.getLastAngle() == 0) {
+				if (marker.getLastDistance() == 0 || marker.getLastDistance() == -1|| marker.getLastAngle() == 0 || marker.getLastAngle() == -1) {
 					marker.calcAngleDistance();
 				}
 
@@ -456,6 +483,7 @@ public class Board extends JPanel implements ActionListener {
 		// their own functions just for readability.
 		doDrawing(g);
 		drawLines(g);
+		drawSemiCircle(g);
 	}
 
 	public void doDrawing(Graphics g) {
@@ -490,6 +518,25 @@ public class Board extends JPanel implements ActionListener {
 					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
+		}
+
+		if (curveStage == 1) {
+			g.drawLine(arcBuilder.getX(), arcBuilder.getY(), (int) mouseXpos, (int) mouseYpos);
+		}
+
+		if (curveStage == 2) {
+			g.drawLine(arcBuilder.getX(), arcBuilder.getY(), arcBuilder.getX1(), arcBuilder.getY1());
+			g.drawLine(arcBuilder.getX(), arcBuilder.getY(), (int) mouseXpos, (int) mouseYpos);
+		}
+	}
+
+	public void drawSemiCircle(Graphics g) {
+		Graphics2D g2 = (Graphics2D) g;
+		g2.setColor(Color.BLUE);
+		g2.setStroke(new BasicStroke(3));
+		g2.draw(new Arc2D.Double(50, 50, 30, 30, 90, 90, Arc2D.OPEN));
+		for (ArcInfo arc : arcList) {
+			g2.draw(arc.generateArc2D());
 		}
 	}
 

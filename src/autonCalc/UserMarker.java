@@ -67,10 +67,11 @@ public class UserMarker {
 	}
 
 	public UserMarker(int x, int y, Boolean sameLine) {
+		// constructor used to initialize first bot
 		setXPos(x);
 		setYPos(y);
-		setHeight(30);
-		setWidth(30);
+		setHeight((int) (27 / inchesPerPixel));
+		setWidth((int) (31 / inchesPerPixel));
 		setRotation(0);
 		setSameLine(sameLine);
 		calcCenter();

@@ -171,13 +171,6 @@ public class ArcInfo {
 
         // build the arc
         arc = new Arc2D.Double(x0 - ra, y0 - ra, 2 * ra, 2 * ra, aa, angleDiff(aa, ad), (int) this.type);
-
-        // set end x/y
-        double startAngle = Math.toDegrees(Math.atan2(xa - x0, ya - y0));
-        this.endX = (int) (x0 + this.width * Math.cos(startAngle + angleDiff(aa, ad)));
-        this.endY = (int) (y0 + this.width * Math.sin(startAngle + angleDiff(aa, ad)));
-        System.out.println(endX + ", " + endY);
-
     }
 
     public double calcDistance(double x, double y, double x1, double y1) {
@@ -207,6 +200,23 @@ public class ArcInfo {
         return d;
     }
 
+    public double angleDiff2(double a, double b) {
+        // returns difference in standard angles
+        a %= 360;
+        if (a < 0) {
+            a += 360;
+        }
+
+        b %= 360;
+        if (b < 0) {
+            b += 360;
+        }
+
+        double d = Math.abs(b - a);
+
+        return d;
+    }
+
     public double sqr(double arg) {
         // squares input
         return arg*arg;
@@ -215,6 +225,20 @@ public class ArcInfo {
     public void calcRadius() {
         this.width = (int) calcDistance(x0, y0, xa, ya);
         this.height = this.width;
+    }
+
+    public void calcXY0() {
+        if (yd - ya >= 0) {
+            x0 = xa;
+        } else {
+            x0 = xd;
+        }
+
+        if (xd - xa >= 0) {
+            y0 = ya;
+        } else {
+            y0 = yd;
+        }
     }
 
     public void reset() {

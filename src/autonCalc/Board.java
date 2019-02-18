@@ -20,6 +20,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -191,6 +192,18 @@ public class Board extends JPanel implements ActionListener {
 
 				mouseXpos = me.getX();
 				mouseYpos = me.getY();
+				updateCoords();
+			}
+		});
+
+		//
+		// mouse wheel listener
+		//
+		addMouseWheelListener(new MouseAdapter() {
+			@Override
+			public void mouseWheelMoved(MouseWheelEvent me) {
+				// up returns -1, down return 1z
+				System.out.println(me.getWheelRotation());
 			}
 		});
 		
@@ -389,26 +402,23 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void drawCurve(int x, int y) {
+
 		if (curveStage == 0) {
-
-			arcBuilder.setX0(x);
-			arcBuilder.setY0(y);
-
-			curveStage = 1;
-		} else if (curveStage == 1) {
 			arcBuilder.setXa(x);
 			arcBuilder.setYa(y);
 			arcBuilder.calcRadius();
 			setMark(false);
 
-			curveStage = 2;
-		} else if (curveStage == 2) {
+			curveStage = 1;
+		} else if (curveStage == 1) {
 
-			boolean tmp = allowMove;
-			allowMove = false;
+			// boolean tmp = allowMove;
+			// allowMove = false;
 
 			arcBuilder.setXd(x);
 			arcBuilder.setYd(y);
+			arcBuilder.calcXY0();
+			arcBuilder.calcRadius();
 			arcBuilder.build();
 
 			arcList.add(arcBuilder.copy());
@@ -419,7 +429,7 @@ public class Board extends JPanel implements ActionListener {
 
 			curveStage = 0;
 
-			allowMove = tmp;
+			// allowMove = tmp;
 		}
 	}
 
@@ -485,19 +495,17 @@ public class Board extends JPanel implements ActionListener {
 					marker.calcAngleDistance();
 				}
 
-				double lastAngle, lastDistance;
+				double lastAngle, lastDistance, radius;
 				if (marker.getArcIndex() == -1) {
 					lastAngle = Math.toDegrees(marker.getLastAngle());
 					//this could be a potential issue, I don't know if conversionRatio will mess up angle calculations
-					lastDistance = marker.getLastDistance();	
+					lastDistance = marker.getLastDistance();
+					OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
 				} else {
 					lastAngle = arcList.get(marker.getArcIndex()).getArc().getAngleExtent();
-					lastDistance = Math.abs(2 * Math.PI * arcList.get(marker.getArcIndex()).getWidth()) / Math.abs(lastAngle / 360);
-					lastDistance *= UserMarker.inchesPerPixel;
+					radius = arcList.get(marker.getArcIndex()).getWidth() * UserMarker.inchesPerPixel;
+					OUTPUT += "arc degrees: " + df.format(lastAngle) + ", radius: " + df.format(radius) + "\n";
 				}
-				
-
-				OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
 			}
 		}
 		output.setText(OUTPUT);

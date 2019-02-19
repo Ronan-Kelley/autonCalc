@@ -5,9 +5,8 @@ import java.awt.geom.Arc2D;
 public class ArcInfo {
     private int x0, xa, xd;
     private int y0, ya, yd;
-    private int endX, endY;
-    private int width;
-    private int height;
+    private double deltaX, deltaY;
+    private double radius;
     private double startAng;
     private double endAng;
     private double type = Arc2D.PIE;
@@ -24,8 +23,7 @@ public class ArcInfo {
         this.y0 = oldObj.getY0();
         this.ya = oldObj.getYa();
         this.yd = oldObj.getYd();
-        this.width = oldObj.getWidth();
-        this.height = oldObj.getHeight();
+        this.radius = oldObj.getRadius();
         this.startAng = oldObj.getStartAng();
         this.endAng = oldObj.getEndAng();
         this.type = oldObj.getType();
@@ -48,10 +46,6 @@ public class ArcInfo {
         return y0;
     }
 
-    public int getEndX() {
-        return endX;
-    }
-
     public int getYa() {
         return ya;
     }
@@ -60,16 +54,8 @@ public class ArcInfo {
         return yd;
     }
 
-    public int getEndY() {
-        return endY;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
+    public double getRadius() {
+        return radius;
     }
 
     public double getStartAng() {
@@ -108,12 +94,8 @@ public class ArcInfo {
         this.yd = yd;
     }
 
-    public void setWidth(int width) {
-        this.width = width;
-    }
-
-    public void setHeight(int height) {
-        this.height = height;
+    public void setRadius(double radius) {
+        this.radius = radius;
     }
 
     public void setStartAng(double startAng) {
@@ -136,41 +118,45 @@ public class ArcInfo {
         return arc;
     }
 
-    public void checkXdYd() {
-        double ang2 = Math.toDegrees(Math.acos((xd - x0) / calcDistance(x0, y0, xd, yd)));
-        double dist2 = (xd - x0) / (Math.toDegrees(Math.cos(ang2)));
+    //
+    // build steps
+    //
 
-        double newXd, newYd;
-        if (dist2 > width) {
-            newXd = x0 + width * Math.cos(ang2);
-            newYd = y0 + width * Math.sin(ang2);
-            this.xd = (int) newXd; 
-            this.yd = (int) newYd;
-        } else if (dist2 < width) {
-            newXd = x0 + width * Math.cos(ang2);
-            newYd = y0 + width * Math.sin(ang2);
-            this.xd = (int) newXd;
-            this.yd = (int) newYd;
-        }
-    }
+
+
+    //
+    // actually build
+    //
 
     public void build() {
-        // get radii of anchor/det point
-        double ra = dist0(xa, ya);
-        double rd = dist0(xd, yd);
-
-        // if either is 0, something is wrong
-        if (ra == 0 || rd == 0) {
-            startAng = 0;
-            endAng = 0;
+        deltaX = xd - xa;
+        deltaY = yd - ya;
+        double lineSolution = (xa - xd) * ((yd - ya) / (xd - xa)) + ya;
+        double lineLength = Math.sqrt(sqr(deltaX) + sqr(deltaY));
+        double midLength = lineLength / 2;
+        double perpLineSlope = -(deltaX/deltaY);
+        double CP = Board.SCROLLVAL;
+        double CD = (sqr(midLength)/CP)+CP;
+        double R = 0.5 * (sqr(midLength)/CP)+CP;
+        double alphaAng = Math.atan(deltaY / deltaX);
+        double Xi = xa + midLength * Math.cos(alphaAng);
+        double yi = ya + midLength * Math.sin(alphaAng);
+        double betaAng = alphaAng + Math.toRadians(90);
+        double x3 = Xi + CP * Math.cos(betaAng);
+        double y3 = yi + CP * Math.sin(betaAng);
+        double xc = x3 - R * Math.cos(betaAng);
+        double yc = y3 - R * Math.sin(betaAng);
+        double startAng = Math.toDegrees(Math.atan((ya - yc) / (xa - xc)));
+        double endAng = Math.toDegrees(Math.atan((yd - yc) / (xd - xc)));
+        if (xa < xc) {
+            startAng += 90;
         }
+        double deltaAng = startAng - endAng;
 
-        // get the angles from center to points
-        double aa = angle0(xa, ya);
-        double ad = angle0(xd, yd);
+        arc = new Arc2D.Double(xc, yc, R, R, Math.abs(startAng), Math.abs(deltaAng), Arc2D.PIE);
 
-        // build the arc
-        arc = new Arc2D.Double(x0 - ra, y0 - ra, 2 * ra, 2 * ra, aa, angleDiff(aa, ad), (int) this.type);
+        System.out.println("xc, yc, R, startAng, deltaAng: " + xc + ", " + yc + ", " + R + ", " + startAng + ", " + deltaAng);
+
     }
 
     public double calcDistance(double x, double y, double x1, double y1) {
@@ -221,25 +207,6 @@ public class ArcInfo {
         // squares input
         return arg*arg;
     }
-    
-    public void calcRadius() {
-        this.width = (int) calcDistance(x0, y0, xa, ya);
-        this.height = this.width;
-    }
-
-    public void calcXY0() {
-        if (yd - ya >= 0) {
-            x0 = xa;
-        } else {
-            x0 = xd;
-        }
-
-        if (xd - xa >= 0) {
-            y0 = ya;
-        } else {
-            y0 = yd;
-        }
-    }
 
     public void reset() {
         this.x0 = 0;
@@ -248,8 +215,7 @@ public class ArcInfo {
         this.y0 = 0;
         this.ya = 0;
         this.yd = 0;
-        this.height = 0;
-        this.width = 0;
+        this.radius = 0;
         this.startAng = 0;
         this.endAng = 0;
         this.type = Arc2D.PIE;

@@ -56,6 +56,7 @@ public class Board extends JPanel implements ActionListener {
 	// save mouse pos
 	public double mouseXpos;
 	public double mouseYpos;
+	public static int SCROLLVAL = 0;
 
 	//used to make control a modifier key
 	public boolean modifierControlDown = false;
@@ -202,8 +203,13 @@ public class Board extends JPanel implements ActionListener {
 		addMouseWheelListener(new MouseAdapter() {
 			@Override
 			public void mouseWheelMoved(MouseWheelEvent me) {
-				// up returns -1, down return 1z
-				System.out.println(me.getWheelRotation());
+				// up returns -1, down return 1
+				// System.out.println(me.getWheelRotation());
+				Board.SCROLLVAL += me.getWheelRotation();
+				if (curveStage == 2) {
+					arcList.set(arcList.size() - 1, arcBuilder.copy());
+					arcList.get(arcList.size() - 1).build();
+				}
 			}
 		});
 		
@@ -310,6 +316,7 @@ public class Board extends JPanel implements ActionListener {
 						//clears on ctrl + c
 						UMList.clear();
 						arcList.clear();
+						curveStage = 0;
 						initObjs();
 					} else if (modifierControlDown == false) {
 						cycleColor(false); // false is for friendly colors	
@@ -406,7 +413,6 @@ public class Board extends JPanel implements ActionListener {
 		if (curveStage == 0) {
 			arcBuilder.setXa(x);
 			arcBuilder.setYa(y);
-			arcBuilder.calcRadius();
 			setMark(false);
 
 			curveStage = 1;
@@ -417,19 +423,19 @@ public class Board extends JPanel implements ActionListener {
 
 			arcBuilder.setXd(x);
 			arcBuilder.setYd(y);
-			arcBuilder.calcXY0();
-			arcBuilder.calcRadius();
 			arcBuilder.build();
 
 			arcList.add(arcBuilder.copy());
 
-			arcBuilder.reset();
-
 			setMark(true, true);
 
-			curveStage = 0;
+			curveStage = 2;
 
 			// allowMove = tmp;
+		} else if (curveStage == 2) {
+			arcList.set(arcList.size() - 1, arcBuilder.copy());
+			arcBuilder.reset();
+			curveStage = 0;
 		}
 	}
 
@@ -503,7 +509,7 @@ public class Board extends JPanel implements ActionListener {
 					OUTPUT += "X: " + X + ", Y: " + Y + ", lastAngle: " + df.format(lastAngle) + ", lastDistance: " + df.format(lastDistance) + "\n";
 				} else {
 					lastAngle = arcList.get(marker.getArcIndex()).getArc().getAngleExtent();
-					radius = arcList.get(marker.getArcIndex()).getWidth() * UserMarker.inchesPerPixel;
+					radius = arcList.get(marker.getArcIndex()).getRadius() * UserMarker.inchesPerPixel;
 					OUTPUT += "arc degrees: " + df.format(lastAngle) + ", radius: " + df.format(radius) + "\n";
 				}
 			}
@@ -559,15 +565,6 @@ public class Board extends JPanel implements ActionListener {
 					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
-		}
-
-		if (curveStage == 1) {
-			g.drawLine(arcBuilder.getX0(), arcBuilder.getY0(), (int) mouseXpos, (int) mouseYpos);
-		}
-
-		if (curveStage == 2) {
-			g.drawLine(arcBuilder.getX0(), arcBuilder.getY0(), arcBuilder.getXa(), arcBuilder.getYa());
-			g.drawLine(arcBuilder.getX0(), arcBuilder.getY0(), (int) mouseXpos, (int) mouseYpos);
 		}
 	}
 

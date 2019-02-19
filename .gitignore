@@ -27,3 +27,7 @@ hs_err_pid*
 
 #ignore bin
 bin/*
+bin/autonCalc/Application.class
+bin/autonCalc/SequencerReader.class
+bin/autonCalc/*.class
+bin/autonCalc/*

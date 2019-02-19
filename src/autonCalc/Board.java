@@ -570,10 +570,16 @@ public class Board extends JPanel implements ActionListener {
 
 	public void drawSemiCircle(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
-		g2.setColor(Color.BLUE);
-		g2.setStroke(new BasicStroke(3));
 		for (ArcInfo arc : arcList) {
+			g2.setColor(Color.BLUE);
+			g2.setStroke(new BasicStroke(3));
 			g2.draw(arc.getArc());
+			g2.setStroke(new BasicStroke(1));
+			g2.setColor(Color.ORANGE);
+			g2.fillOval(arc.getX1(), arc.getY1(), 5, 5);
+			g2.fillOval(arc.getX2(), arc.getY2(), 5, 5);
+			g2.setColor(Color.GREEN);
+			g2.fillOval((int) arc.getXC(), (int) arc.getYC(), 5, 5);
 		}
 	}
 

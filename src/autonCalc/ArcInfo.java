@@ -3,8 +3,10 @@ package autonCalc;
 import java.awt.geom.Arc2D;
 
 public class ArcInfo {
-    private int x0, xa, xd;
-    private int y0, ya, yd;
+    private int x, x1, x2;
+    private double x3, xi, xc;
+    private int y, y1, y2;
+    private double y3, yi, yc;
     private double deltaX, deltaY;
     private double radius;
     private double startAng;
@@ -17,12 +19,12 @@ public class ArcInfo {
     }
 
     public ArcInfo(ArcInfo oldObj) {
-        this.x0 = oldObj.getX0();
-        this.xa = oldObj.getXa();
-        this.xd = oldObj.getXd();
-        this.y0 = oldObj.getY0();
-        this.ya = oldObj.getYa();
-        this.yd = oldObj.getYd();
+        this.x = oldObj.getX();
+        this.x1 = oldObj.getX1();
+        this.x2 = oldObj.getX2();
+        this.y = oldObj.getY();
+        this.y1 = oldObj.getY1();
+        this.y2 = oldObj.getY2();
         this.radius = oldObj.getRadius();
         this.startAng = oldObj.getStartAng();
         this.endAng = oldObj.getEndAng();
@@ -30,28 +32,52 @@ public class ArcInfo {
         this.arc = oldObj.getArc();
     }
 
-    public int getX0() {
-        return x0;
+    public int getX() {
+        return x;
     }
 
-    public int getXa() {
-        return xa;
+    public int getX1() {
+        return x1;
     }
 
-    public int getXd() {
-        return xd;
+    public int getX2() {
+        return x2;
     }
 
-    public int getY0() {
-        return y0;
+    public double getX3() {
+        return x3;
     }
 
-    public int getYa() {
-        return ya;
+    public double getXi() {
+        return xi;
     }
 
-    public int getYd() {
-        return yd;
+    public double getXC() {
+        return xc;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getY1() {
+        return y1;
+    }
+
+    public int getY2() {
+        return y2;
+    }
+
+    public double getY3() {
+        return y3;
+    }
+
+    public double getYi() {
+        return yi;
+    }
+
+    public double getYC() {
+        return yc;
     }
 
     public double getRadius() {
@@ -71,27 +97,27 @@ public class ArcInfo {
     }
 
     public void setX0(int x0) {
-        this.x0 = x0;
+        this.x = x0;
     }
 
     public void setXa(int xa) {
-        this.xa = xa;
+        this.x1 = xa;
     }
 
     public void setXd(int xd) {
-        this.xd = xd;
+        this.x2 = xd;
     }
 
     public void setY0(int y0) {
-        this.y0 = y0;
+        this.y = y0;
     }
 
     public void setYa(int ya) {
-        this.ya = ya;
+        this.y1 = ya;
     }
 
     public void setYd(int yd) {
-        this.yd = yd;
+        this.y2 = yd;
     }
 
     public void setRadius(double radius) {
@@ -129,9 +155,9 @@ public class ArcInfo {
     //
 
     public void build() {
-        deltaX = xd - xa;
-        deltaY = yd - ya;
-        double lineSolution = (xa - xd) * ((yd - ya) / (xd - xa)) + ya;
+        deltaX = x2 - x1;
+        deltaY = y2 - y1;
+        double lineSolution = (x1 - x2) * ((y2 - y1) / (x2 - x1)) + y1;
         double lineLength = Math.sqrt(sqr(deltaX) + sqr(deltaY));
         double midLength = lineLength / 2;
         double perpLineSlope = -(deltaX/deltaY);
@@ -139,21 +165,21 @@ public class ArcInfo {
         double CD = (sqr(midLength)/CP)+CP;
         double R = 0.5 * (sqr(midLength)/CP)+CP;
         double alphaAng = Math.atan(deltaY / deltaX);
-        double Xi = xa + midLength * Math.cos(alphaAng);
-        double yi = ya + midLength * Math.sin(alphaAng);
+        xi = x1 + midLength * Math.cos(alphaAng);
+        yi = y1 + midLength * Math.sin(alphaAng);
         double betaAng = alphaAng + Math.toRadians(90);
-        double x3 = Xi + CP * Math.cos(betaAng);
-        double y3 = yi + CP * Math.sin(betaAng);
-        double xc = x3 - R * Math.cos(betaAng);
-        double yc = y3 - R * Math.sin(betaAng);
-        double startAng = Math.toDegrees(Math.atan((ya - yc) / (xa - xc)));
-        double endAng = Math.toDegrees(Math.atan((yd - yc) / (xd - xc)));
-        if (xa < xc) {
-            startAng += 90;
-        }
+        x3 = xi + CP * Math.cos(betaAng);
+        y3 = yi + CP * Math.sin(betaAng);
+        xc = x3 - R * Math.cos(betaAng);
+        yc = y3 - R * Math.sin(betaAng);
+        double startAng = Math.toDegrees(Math.atan((y1 - yc) / (x1 - xc)));
+        double endAng = Math.toDegrees(Math.atan((y2 - yc) / (x2 - xc)));
+        // if (x1 < xc) {
+        //     startAng += 90;
+        // }
         double deltaAng = startAng - endAng;
 
-        arc = new Arc2D.Double(xc, yc, R, R, Math.abs(startAng), Math.abs(deltaAng), Arc2D.PIE);
+        arc = new Arc2D.Double(xc-R/2, yc-R/2, R, R, Math.abs(startAng), Math.abs(deltaAng), Arc2D.PIE);
 
         System.out.println("xc, yc, R, startAng, deltaAng: " + xc + ", " + yc + ", " + R + ", " + startAng + ", " + deltaAng);
 
@@ -166,12 +192,12 @@ public class ArcInfo {
 
     public double angle0(double x, double y) {
         // return angle of args from center
-        return Math.toDegrees(Math.atan2(y0 - y, x - x0));
+        return Math.toDegrees(Math.atan2(y - y, x - x));
     }
 
     public double dist0(double x, double y) {
         // return distance of args from center
-        return Math.sqrt(sqr(x - x0) + sqr(y - y0));
+        return Math.sqrt(sqr(x - x) + sqr(y - y));
     }
 
     public double angleDiff(double a, double b) {
@@ -209,12 +235,12 @@ public class ArcInfo {
     }
 
     public void reset() {
-        this.x0 = 0;
-        this.xa = 0;
-        this.xd = 0;
-        this.y0 = 0;
-        this.ya = 0;
-        this.yd = 0;
+        this.x = 0;
+        this.x1 = 0;
+        this.x2 = 0;
+        this.y = 0;
+        this.y1 = 0;
+        this.y2 = 0;
         this.radius = 0;
         this.startAng = 0;
         this.endAng = 0;

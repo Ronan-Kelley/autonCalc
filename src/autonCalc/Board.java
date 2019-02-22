@@ -328,6 +328,9 @@ public class Board extends JPanel implements ActionListener {
 				case (KeyEvent.VK_ESCAPE):
 					allowMove = !allowMove;
 				break;
+				case (KeyEvent.VK_9):
+					System.out.println(arcList.get(arcList.size() - 1).toString());
+				break;
 				}
 				if (move && allowMove) {
 					UMList.get(UMList.size() - 1).moveKeyUp(dir);
@@ -411,8 +414,8 @@ public class Board extends JPanel implements ActionListener {
 	public void drawCurve(int x, int y) {
 
 		if (curveStage == 0) {
-			arcBuilder.setXa(x);
-			arcBuilder.setYa(y);
+			arcBuilder.setX1(x);
+			arcBuilder.setY1(y);
 			setMark(false);
 
 			curveStage = 1;
@@ -421,9 +424,8 @@ public class Board extends JPanel implements ActionListener {
 			// boolean tmp = allowMove;
 			// allowMove = false;
 
-			arcBuilder.setXd(x);
-			arcBuilder.setYd(y);
-			arcBuilder.build();
+			arcBuilder.setX2(x);
+			arcBuilder.setY2(y);
 
 			arcList.add(arcBuilder.copy());
 
@@ -570,10 +572,21 @@ public class Board extends JPanel implements ActionListener {
 
 	public void drawSemiCircle(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
-		g2.setColor(Color.BLUE);
-		g2.setStroke(new BasicStroke(3));
 		for (ArcInfo arc : arcList) {
+			arc.build();
+			g2.setColor(Color.BLUE);
+			g2.setStroke(new BasicStroke(3));
 			g2.draw(arc.getArc());
+			g2.setStroke(new BasicStroke(1));
+			g2.setColor(Color.ORANGE);
+			g2.fillOval(arc.getX1(), arc.getY1(), 5, 5);
+			g2.fillOval(arc.getX2(), arc.getY2(), 5, 5);
+			g2.setColor(Color.GREEN);
+			g2.fillOval((int) arc.getXC(), (int) arc.getYC(), 5, 5);
+			// g2.setColor(Color.MAGENTA);
+			// g2.fillOval((int) arc.getXi(), (int) arc.getYi(), 5, 5);
+			// g2.setColor(Color.ORANGE);
+			// g2.fillOval((int) arc.getX3(), (int) arc.getX3(), 5, 5);
 		}
 	}
 

@@ -4,15 +4,16 @@ import java.awt.geom.Arc2D;
 
 public class ArcInfo {
     private int x, x1, x2;
-    private double x3, xi, xc;
+    private double x3, xi, xc = -1;
     private int y, y1, y2;
-    private double y3, yi, yc;
+    private double y3, yi, yc = -1;
     private double deltaX, deltaY;
     private double radius;
     private double startAng;
     private double endAng;
     private double type = Arc2D.PIE;
     private Arc2D arc;
+    private String arcInfo;
 
     public ArcInfo() {
 
@@ -96,28 +97,32 @@ public class ArcInfo {
         return type;
     }
 
-    public void setX0(int x0) {
-        this.x = x0;
+    public String toString() {
+        return arcInfo;
     }
 
-    public void setXa(int xa) {
-        this.x1 = xa;
+    public void setX(int x) {
+        this.x = x;
     }
 
-    public void setXd(int xd) {
-        this.x2 = xd;
+    public void setX1(int x1) {
+        this.x1 = x1;
     }
 
-    public void setY0(int y0) {
-        this.y = y0;
+    public void setX2(int x2) {
+        this.x2 = x2;
     }
 
-    public void setYa(int ya) {
-        this.y1 = ya;
+    public void setY(int y) {
+        this.y = y;
     }
 
-    public void setYd(int yd) {
-        this.y2 = yd;
+    public void setY1(int y1) {
+        this.y1 = y1;
+    }
+
+    public void setY2(int y2) {
+        this.y2 = y2;
     }
 
     public void setRadius(double radius) {
@@ -154,35 +159,61 @@ public class ArcInfo {
     // actually build
     //
 
+    // public void build() {
+    //     deltaX = x2 - x1;
+    //     deltaY = y2 - y1;
+    //     double lineSolution = (x1 - x2) * ((y2 - y1) / (x2 - x1)) + y1;
+    //     double lineLength = Math.sqrt(sqr(deltaX) + sqr(deltaY));
+    //     double midLength = lineLength / 2;
+    //     double perpLineSlope = -(deltaX/deltaY);
+    //     double CP = Board.SCROLLVAL;
+    //     double CD = (sqr(midLength)/CP)+CP;
+    //     double R = 0.5 * (sqr(midLength)/CP)+CP;
+    //     double alphaAng = Math.atan(deltaY / deltaX);
+    //     xi = x1 + midLength * Math.cos(Math.toDegrees(alphaAng));
+    //     yi = y1 + midLength * Math.sin(Math.toDegrees(alphaAng));
+    //     double betaAng = alphaAng + Math.toRadians(90);
+    //     x3 = xi + CP * Math.cos(Math.toDegrees(betaAng));
+    //     y3 = yi + CP * Math.sin(Math.toDegrees(betaAng));
+    //     xc = x3 - R * Math.cos(Math.toDegrees(betaAng));
+    //     yc = y3 - R * Math.sin(Math.toDegrees(betaAng));
+    //     double startAng = Math.toDegrees(Math.atan((y1 - yc) / (x1 - xc)));
+    //     double endAng = Math.toDegrees(Math.atan((y2 - yc) / (x2 - xc)));
+    //     if (startAng < 0) {
+    //         startAng += 180;
+    //     }
+    //     if (endAng < 0) {
+    //         endAng += 180;
+    //     }
+    //     double deltaAng = startAng - endAng;
+
+    //     arc = new Arc2D.Double(xc-R/2, yc-R/2, R, R, startAng, deltaAng, Arc2D.PIE);
+
+    //     arcInfo = "x1/y1: " + x1 + "/" + y1 + "\n" +
+    //                 "x2/y2: " + x2 + "/" + y2 + "\n" +
+    //                 "xi/yi: " + xi + "/" + yi + "\n" +
+    //                 "x3/y3: " + x3 + "/" + y3 + "\n" +
+    //                 "xc/yc: " + xc + "/" + yc + "\n" +
+    //                 "startAng/endAng/deltaAng: " + startAng + "/" + endAng + "/" + deltaAng;
+
+    // }
+
     public void build() {
-        deltaX = x2 - x1;
-        deltaY = y2 - y1;
-        double lineSolution = (x1 - x2) * ((y2 - y1) / (x2 - x1)) + y1;
-        double lineLength = Math.sqrt(sqr(deltaX) + sqr(deltaY));
-        double midLength = lineLength / 2;
-        double perpLineSlope = -(deltaX/deltaY);
-        double CP = Board.SCROLLVAL;
-        double CD = (sqr(midLength)/CP)+CP;
-        double R = 0.5 * (sqr(midLength)/CP)+CP;
-        double alphaAng = Math.atan(deltaY / deltaX);
-        xi = x1 + midLength * Math.cos(alphaAng);
-        yi = y1 + midLength * Math.sin(alphaAng);
-        double betaAng = alphaAng + Math.toRadians(90);
-        x3 = xi + CP * Math.cos(betaAng);
-        y3 = yi + CP * Math.sin(betaAng);
-        xc = x3 - R * Math.cos(betaAng);
-        yc = y3 - R * Math.sin(betaAng);
-        double startAng = Math.toDegrees(Math.atan((y1 - yc) / (x1 - xc)));
-        double endAng = Math.toDegrees(Math.atan((y2 - yc) / (x2 - xc)));
-        // if (x1 < xc) {
-        //     startAng += 90;
-        // }
-        double deltaAng = startAng - endAng;
+        double deltaX = x2 - x1;
+        double deltaY = y2 - y1;
+        double ang1 = Math.atan2(y1 - yc, x1 - xc);
+        double ang2 = Math.atan2(y2 - yc, x2 - xc);
+        double deltaAng = ang2 - ang1;
+        double radius = dist0(x1, y1);
+        this.xc = x1 + deltaX;
+        this.yc = y1 - deltaY;
+        this.startAng = ang1;
+        this.endAng = deltaAng;
+        System.out.println("xc/yc: " + xc + "/" + yc);
+        System.out.println("deltax/deltay: " + deltaX + "/" + deltaY);
+        // System.out.println("x2/y2 - x1/y1: " + x2 + "/" + y2 + " - " + x1 + "/" + y1);
 
-        arc = new Arc2D.Double(xc-R/2, yc-R/2, R, R, Math.abs(startAng), Math.abs(deltaAng), Arc2D.PIE);
-
-        System.out.println("xc, yc, R, startAng, deltaAng: " + xc + ", " + yc + ", " + R + ", " + startAng + ", " + deltaAng);
-
+        this.arc = new Arc2D.Double(xc - radius/2, xc - radius/2, radius, radius, startAng, endAng, (int) this.type);
     }
 
     public double calcDistance(double x, double y, double x1, double y1) {
@@ -192,12 +223,12 @@ public class ArcInfo {
 
     public double angle0(double x, double y) {
         // return angle of args from center
-        return Math.toDegrees(Math.atan2(y - y, x - x));
+        return Math.toDegrees(Math.atan2(y - yc, x - xc));
     }
 
     public double dist0(double x, double y) {
         // return distance of args from center
-        return Math.sqrt(sqr(x - x) + sqr(y - y));
+        return Math.sqrt(sqr(x - xc) + sqr(y - yc));
     }
 
     public double angleDiff(double a, double b) {

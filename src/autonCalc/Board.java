@@ -13,6 +13,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Label;
+import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -193,6 +194,7 @@ public class Board extends JPanel implements ActionListener {
 
 				mouseXpos = me.getX();
 				mouseYpos = me.getY();
+				System.out.println("x/y: " + me.getX() + "/" + me.getY());
 				updateCoords();
 			}
 		});
@@ -414,12 +416,18 @@ public class Board extends JPanel implements ActionListener {
 	public void drawCurve(int x, int y) {
 
 		if (curveStage == 0) {
+			arcBuilder.setXc(x);
+			arcBuilder.setYc(y);
+
+			curveStage = 1;
+		} else if (curveStage == 1) {
+
 			arcBuilder.setX1(x);
 			arcBuilder.setY1(y);
 			setMark(false);
 
-			curveStage = 1;
-		} else if (curveStage == 1) {
+			curveStage = 2;
+		} else if (curveStage == 2) {
 
 			// boolean tmp = allowMove;
 			// allowMove = false;
@@ -431,10 +439,8 @@ public class Board extends JPanel implements ActionListener {
 
 			setMark(true, true);
 
-			curveStage = 2;
-
 			// allowMove = tmp;
-		} else if (curveStage == 2) {
+
 			arcList.set(arcList.size() - 1, arcBuilder.copy());
 			arcBuilder.reset();
 			curveStage = 0;
@@ -567,6 +573,22 @@ public class Board extends JPanel implements ActionListener {
 					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
+		}
+
+		if (curveStage == 2) {
+			int xc, x2, yc, y2;
+			double radius, mouseAng;
+			xc = (int) arcBuilder.getXC();
+			yc = (int) arcBuilder.getYC();
+			
+			radius = Math.sqrt(Math.pow(arcBuilder.getX1() - xc, 2) + Math.pow(arcBuilder.getY1() - yc, 2));
+			mouseAng = Math.atan2(mouseYpos - yc, mouseXpos - xc);
+			System.out.println("mouseAng: " + mouseAng);
+
+			x2 = (int) (xc + radius * Math.cos(mouseAng));
+			y2 = (int) (yc + radius * Math.sin(mouseAng));
+
+			g.drawLine(xc, yc, x2, y2);
 		}
 	}
 

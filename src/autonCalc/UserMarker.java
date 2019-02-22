@@ -260,7 +260,7 @@ public class UserMarker {
 			this.xPos = x;
 		} else if (x < 0) {
 			this.xPos = 0;
-			System.out.println("can't set UserMarker xPos to a negative number!");
+			// System.out.println("can't set UserMarker xPos to a negative number!");
 		} else {
 			System.out.println("userMarker encountered an undefined X input!");
 		}
@@ -276,7 +276,7 @@ public class UserMarker {
 			this.yPos = y;
 		} else if (y < 0) {
 			this.yPos = 0;
-			System.out.println("can't set UserMarker yPos to a negative number!");
+			// System.out.println("can't set UserMarker yPos to a negative number!");
 		} else {
 			System.out.println("userMarker encountered an undefined Y input!");
 		}

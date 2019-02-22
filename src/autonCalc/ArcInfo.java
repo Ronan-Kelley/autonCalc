@@ -113,6 +113,10 @@ public class ArcInfo {
         this.x2 = x2;
     }
 
+    public void setXc(int xc) {
+        this.xc = xc;
+    }
+
     public void setY(int y) {
         this.y = y;
     }
@@ -123,6 +127,10 @@ public class ArcInfo {
 
     public void setY2(int y2) {
         this.y2 = y2;
+    }
+
+    public void setYc(int yc) {
+        this.yc = yc;
     }
 
     public void setRadius(double radius) {
@@ -201,19 +209,26 @@ public class ArcInfo {
     public void build() {
         double deltaX = x2 - x1;
         double deltaY = y2 - y1;
-        double ang1 = Math.atan2(y1 - yc, x1 - xc);
-        double ang2 = Math.atan2(y2 - yc, x2 - xc);
+        double ang1 = angle0(x1, y1);
+        double ang2 = angle0(x2, y2);
+        if (ang1 < 0) {
+            ang1 += 270;
+        }
+        if (ang2 < 0) {
+            ang2 += 180;
+        }
         double deltaAng = ang2 - ang1;
         double radius = dist0(x1, y1);
-        this.xc = x1 + deltaX;
-        this.yc = y1 - deltaY;
+        // this.xc = x1 + deltaX;
+        // this.yc = y2 - deltaY;
         this.startAng = ang1;
         this.endAng = deltaAng;
         System.out.println("xc/yc: " + xc + "/" + yc);
         System.out.println("deltax/deltay: " + deltaX + "/" + deltaY);
+        System.out.println("ang1/ang2/deltaAng: " + ang1 + "/" + ang2 + "/" + deltaAng);
         // System.out.println("x2/y2 - x1/y1: " + x2 + "/" + y2 + " - " + x1 + "/" + y1);
 
-        this.arc = new Arc2D.Double(xc - radius/2, xc - radius/2, radius, radius, startAng, endAng, (int) this.type);
+        this.arc = new Arc2D.Double(xc - (radius / 2), yc - (radius / 2), radius, radius, startAng, endAng, (int) this.type);
     }
 
     public double calcDistance(double x, double y, double x1, double y1) {

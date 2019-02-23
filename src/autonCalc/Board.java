@@ -53,6 +53,7 @@ public class Board extends JPanel implements ActionListener {
 	// used in drawing curved drives
 	public int curveStage = 0;
 	public ArcInfo arcBuilder = new ArcInfo();
+	private Point arcBuilderCorrectedPoint2 = new Point();
 
 	// save mouse pos
 	public double mouseXpos;
@@ -194,7 +195,7 @@ public class Board extends JPanel implements ActionListener {
 
 				mouseXpos = me.getX();
 				mouseYpos = me.getY();
-				System.out.println("x/y: " + me.getX() + "/" + me.getY());
+				// System.out.println("x/y: " + me.getX() + "/" + me.getY());
 				updateCoords();
 			}
 		});
@@ -208,10 +209,6 @@ public class Board extends JPanel implements ActionListener {
 				// up returns -1, down return 1
 				// System.out.println(me.getWheelRotation());
 				Board.SCROLLVAL += me.getWheelRotation();
-				if (curveStage == 2) {
-					arcList.set(arcList.size() - 1, arcBuilder.copy());
-					arcList.get(arcList.size() - 1).build();
-				}
 			}
 		});
 		
@@ -398,11 +395,13 @@ public class Board extends JPanel implements ActionListener {
 		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
 	}
 
-	public void setMark(Boolean sameLine, boolean curved) {
+	public void setMark(Boolean sameLine, boolean curved, int x, int y) {
 		// overload for setting arcIndex
 
 		if (curved) {
 			UMList.get(UMList.size()-1).setArcIndex(arcList.size()-1);
+			UMList.get(UMList.size()-1).setXPos(x - UMList.get(UMList.size()-1).getWidth() / 2);
+			UMList.get(UMList.size()-1).setYPos(y - UMList.get(UMList.size()-1).getHeight() / 2);
 		}
 
 		//make sure that the necessary information is calculated, but only when it actually can be.
@@ -416,33 +415,26 @@ public class Board extends JPanel implements ActionListener {
 	public void drawCurve(int x, int y) {
 
 		if (curveStage == 0) {
-			arcBuilder.setXc(x);
-			arcBuilder.setYc(y);
+			arcBuilder.setCenter(x, y);
 
 			curveStage = 1;
+		
 		} else if (curveStage == 1) {
 
-			arcBuilder.setX1(x);
-			arcBuilder.setY1(y);
+			arcBuilder.setPoint1(x, y);
 			setMark(false);
 
 			curveStage = 2;
+
 		} else if (curveStage == 2) {
 
-			// boolean tmp = allowMove;
-			// allowMove = false;
-
-			arcBuilder.setX2(x);
-			arcBuilder.setY2(y);
+			arcBuilder.setPoint2((int) arcBuilderCorrectedPoint2.getX(), (int) arcBuilderCorrectedPoint2.getY());
 
 			arcList.add(arcBuilder.copy());
 
-			setMark(true, true);
+			setMark(true, true, (int) arcBuilderCorrectedPoint2.getX(), (int) arcBuilderCorrectedPoint2.getY());
 
-			// allowMove = tmp;
-
-			arcList.set(arcList.size() - 1, arcBuilder.copy());
-			arcBuilder.reset();
+			// arcList.set(arcList.size() - 1, arcBuilder.copy());
 			curveStage = 0;
 		}
 	}
@@ -578,15 +570,16 @@ public class Board extends JPanel implements ActionListener {
 		if (curveStage == 2) {
 			int xc, x2, yc, y2;
 			double radius, mouseAng;
-			xc = (int) arcBuilder.getXC();
-			yc = (int) arcBuilder.getYC();
+			xc = (int) arcBuilder.getCenterPoint().getX();
+			yc = (int) arcBuilder.getCenterPoint().getY();
 			
-			radius = Math.sqrt(Math.pow(arcBuilder.getX1() - xc, 2) + Math.pow(arcBuilder.getY1() - yc, 2));
+			radius = Math.sqrt(Math.pow(arcBuilder.getPoint1().getX() - xc, 2) + Math.pow(arcBuilder.getPoint1().getY() - yc, 2));
 			mouseAng = Math.atan2(mouseYpos - yc, mouseXpos - xc);
-			System.out.println("mouseAng: " + mouseAng);
 
 			x2 = (int) (xc + radius * Math.cos(mouseAng));
 			y2 = (int) (yc + radius * Math.sin(mouseAng));
+
+			this.arcBuilderCorrectedPoint2.setLocation(x2, y2);
 
 			g.drawLine(xc, yc, x2, y2);
 		}
@@ -595,16 +588,15 @@ public class Board extends JPanel implements ActionListener {
 	public void drawSemiCircle(Graphics g) {
 		Graphics2D g2 = (Graphics2D) g;
 		for (ArcInfo arc : arcList) {
-			arc.build();
 			g2.setColor(Color.BLUE);
 			g2.setStroke(new BasicStroke(3));
 			g2.draw(arc.getArc());
 			g2.setStroke(new BasicStroke(1));
 			g2.setColor(Color.ORANGE);
-			g2.fillOval(arc.getX1(), arc.getY1(), 5, 5);
-			g2.fillOval(arc.getX2(), arc.getY2(), 5, 5);
+			g2.fillOval((int) arc.getPoint1().getX(), (int) arc.getPoint1().getY(), 5, 5);
+			g2.fillOval((int) arc.getPoint2().getX(), (int) arc.getPoint2().getY(), 5, 5);
 			g2.setColor(Color.GREEN);
-			g2.fillOval((int) arc.getXC(), (int) arc.getYC(), 5, 5);
+			g2.fillOval((int) arc.getCenterPoint().getX(), (int) arc.getCenterPoint().getY(), 5, 5);
 			// g2.setColor(Color.MAGENTA);
 			// g2.fillOval((int) arc.getXi(), (int) arc.getYi(), 5, 5);
 			// g2.setColor(Color.ORANGE);

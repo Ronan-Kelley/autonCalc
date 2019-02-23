@@ -17,7 +17,6 @@ public class SequencerReader {
 	private ArrayList<String> initialSplit;
 	private ArrayList<String> finalSplit = new ArrayList<String>();
 	private ArrayList<Double[]> commandVals = new ArrayList<Double[]>();
-	private String auton;
 
 	//
 	// constructors

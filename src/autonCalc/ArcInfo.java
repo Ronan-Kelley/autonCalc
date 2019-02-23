@@ -39,9 +39,9 @@ public class ArcInfo {
     }
 
     public void calcAngs() {
+        //TODO figure out why sometimes this gives the negative of the actual angle
         this.ang1.setRads(Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
-        this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
-        
+        this.ang2.setRads(-Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
     }
 
     public Point getPoint1() {

@@ -209,6 +209,9 @@ public class Board extends JPanel implements ActionListener {
 				// up returns -1, down return 1
 				// System.out.println(me.getWheelRotation());
 				Board.SCROLLVAL += me.getWheelRotation();
+				if (arcList.size() >= 1) {
+					arcList.get(arcList.size() - 1).setScrollVal(Board.SCROLLVAL);
+				}
 			}
 		});
 		

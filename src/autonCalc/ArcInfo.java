@@ -16,6 +16,7 @@ public class ArcInfo {
     private Angle ang2 = new Angle();
     private Arc2D arc;
     private double radius = 0.0;
+    private int scrollVal = 0;
 
     public ArcInfo() {}
 
@@ -41,16 +42,20 @@ public class ArcInfo {
         this.originalPointC.setLocation(x, y);
     }
 
+    public void setScrollVal(int val) {
+        this.scrollVal = -val;
+    }
+
     public Point getPoint1() {
-        return point1;
+        return this.point1;
     }
 
     public Point getPoint2() {
-        return point2;
+        return this.point2;
     }
 
     public Point getCenterPoint() {
-        return pointC;
+        return this.pointC;
     }
 
     public Point getMidpoint() {
@@ -60,6 +65,10 @@ public class ArcInfo {
 
     public double getRadius() {
         return this.radius;
+    }
+
+    public int getScrollVal() {
+        return this.scrollVal;
     }
 
     public Arc2D getArc() {
@@ -111,8 +120,8 @@ public class ArcInfo {
     private void setNewCenter() {
         double centerAng = getAng(pointC, midpoint);
 
-        int newX = (int) (originalPointC.x + Board.SCROLLVAL * Math.cos(centerAng));
-        int newY = (int) (originalPointC.y + Board.SCROLLVAL * Math.sin(centerAng));
+        int newX = (int) (originalPointC.x + this.scrollVal * Math.cos(centerAng));
+        int newY = (int) (originalPointC.y + this.scrollVal * Math.sin(centerAng));
 
         this.pointC.setLocation(newX, newY);
     }

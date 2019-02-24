@@ -81,9 +81,9 @@ public class ArcInfo {
      */
     private void buildArc() {
         radius = getDistance(point1, pointC);
-        calcAngs();
         calcMidpoint();
         setNewCenter();
+        calcAngs();
         this.arc = new Arc2D.Double(pointC.getX() - (radius), pointC.getY() - (radius), radius*2, radius*2, ang1.getDegs(), ang2.getDeltaAng(AngleType.DEG, ang1), Arc2D.PIE);
     }
 

@@ -402,6 +402,7 @@ public class Board extends JPanel implements ActionListener {
 			UMList.get(UMList.size()-1).setArcIndex(arcList.size()-1);
 			UMList.get(UMList.size()-1).setXPos(x - UMList.get(UMList.size()-1).getWidth() / 2);
 			UMList.get(UMList.size()-1).setYPos(y - UMList.get(UMList.size()-1).getHeight() / 2);
+			UMList.get(UMList.size()-1).calcCenter();
 		}
 
 		//make sure that the necessary information is calculated, but only when it actually can be.
@@ -415,14 +416,14 @@ public class Board extends JPanel implements ActionListener {
 	public void drawCurve(int x, int y) {
 
 		if (curveStage == 0) {
-			arcBuilder.setCenter(x, y);
+			arcBuilder.setPoint1(x, y);
+			setMark(false);
 
 			curveStage = 1;
 		
 		} else if (curveStage == 1) {
 
-			arcBuilder.setPoint1(x, y);
-			setMark(false);
+			arcBuilder.setCenter(x, y);
 
 			curveStage = 2;
 
@@ -565,6 +566,10 @@ public class Board extends JPanel implements ActionListener {
 					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
+		}
+
+		if (curveStage == 1) {
+			g.drawLine((int) arcBuilder.getPoint1().getX(), (int) arcBuilder.getPoint1().getY(), (int) mouseXpos,(int) mouseYpos);
 		}
 
 		if (curveStage == 2) {

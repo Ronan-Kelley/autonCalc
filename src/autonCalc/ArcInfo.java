@@ -40,8 +40,22 @@ public class ArcInfo {
 
     public void calcAngs() {
         //TODO figure out why sometimes this gives the negative of the actual angle
+
+        // if (this.point2.getY() < this.pointC.getY()) {
+        //     this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
+        // } else {
+        //     this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
+        // }
+
+        // if (this.point1.getY() < this.pointC.getY()) {
+        //     this.ang1.setRads(Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
+        // } else {
+        //     this.ang1.setRads(-Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
+        // }
+
         this.ang1.setRads(Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
-        this.ang2.setRads(-Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
+        this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
+        
     }
 
     public Point getPoint1() {
@@ -68,7 +82,7 @@ public class ArcInfo {
     private void buildArc() {
         radius = Math.sqrt(Math.pow(point1.getX() - pointC.getX(), 2) + Math.pow(point1.getY() - pointC.getY(), 2));
         calcAngs();
-        this.arc = new Arc2D.Double(pointC.getX() - (radius / 2), pointC.getY() - (radius / 2), radius, radius, ang1.getDegs(), ang2.getDeltaAng(AngleType.DEG, ang1), Arc2D.PIE);
+        this.arc = new Arc2D.Double(pointC.getX() - (radius), pointC.getY() - (radius), radius*2, radius*2, ang1.getDegs(), ang2.getDeltaAng(AngleType.DEG, ang1), Arc2D.PIE);
         System.out.println("ang1/ang2/deltaAng: " + ang1.getDegs() + "/" + ang2.getDegs() + "/" + ang2.getDeltaAng(AngleType.DEG, ang1));
         // System.out.println("x1/y1 - x2/y2: " + point1.getX() + "/" + point1.getY() + " - " + point2.getX() + "/" + point2.getY());
     }

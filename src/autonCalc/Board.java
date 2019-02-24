@@ -56,8 +56,8 @@ public class Board extends JPanel implements ActionListener {
 	private Point arcBuilderCorrectedPoint2 = new Point();
 
 	// save mouse pos
-	public double mouseXpos;
-	public double mouseYpos;
+	public static double mouseXpos;
+	public static double mouseYpos;
 	public static int SCROLLVAL = 0;
 
 	//used to make control a modifier key
@@ -413,6 +413,9 @@ public class Board extends JPanel implements ActionListener {
 		UMList.add(new UserMarker(UMList.get(UMList.size()-1), sameLine));
 	}
 
+	/**
+	 * draws a CurveDrive move
+	 */
 	public void drawCurve(int x, int y) {
 
 		if (curveStage == 0) {
@@ -437,6 +440,7 @@ public class Board extends JPanel implements ActionListener {
 
 			// arcList.set(arcList.size() - 1, arcBuilder.copy());
 			curveStage = 0;
+			Board.SCROLLVAL = 0;
 		}
 	}
 
@@ -602,10 +606,8 @@ public class Board extends JPanel implements ActionListener {
 			g2.fillOval((int) arc.getPoint2().getX(), (int) arc.getPoint2().getY(), 5, 5);
 			g2.setColor(Color.GREEN);
 			g2.fillOval((int) arc.getCenterPoint().getX(), (int) arc.getCenterPoint().getY(), 5, 5);
-			// g2.setColor(Color.MAGENTA);
-			// g2.fillOval((int) arc.getXi(), (int) arc.getYi(), 5, 5);
-			// g2.setColor(Color.ORANGE);
-			// g2.fillOval((int) arc.getX3(), (int) arc.getX3(), 5, 5);
+			g2.setColor(Color.RED);
+			g2.fillOval((int) arc.getMidpoint().getX(), (int) arc.getMidpoint().getY(), 5, 5);
 		}
 	}
 

@@ -39,22 +39,25 @@ public class ArcInfo {
     }
 
     public void calcAngs() {
-        //TODO figure out why sometimes this gives the negative of the actual angle
+        double ang1 = Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX());
+        double ang2 = Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX());
 
-        // if (this.point2.getY() < this.pointC.getY()) {
-        //     this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
-        // } else {
-        //     this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
+        // if (point1.getY() < pointC.getY() && point2.getY() < pointC.getY()) {
+        //     ang1 *= -1;
+        //     ang2 *= -1;
+        // } else if (point1.getY() > pointC.getY() && point2.getY() < pointC.getY()) {
+        //     ang1 *= -1;
+        //     ang2 *= -1;
+        // } else if (point1.getY() > pointC.getY() && point2.getY() > pointC.getY()) {
+        //     ang1 *= -1;
+        //     ang2 *= -1;
         // }
 
-        // if (this.point1.getY() < this.pointC.getY()) {
-        //     this.ang1.setRads(Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
-        // } else {
-        //     this.ang1.setRads(-Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
-        // }
+        ang1 *= -1;
+        ang2 *= -1;
 
-        this.ang1.setRads(Math.atan2(point1.getY() - pointC.getY(), point1.getX() - pointC.getX()));
-        this.ang2.setRads(Math.atan2(point2.getY() - pointC.getY(), point2.getX() - pointC.getX()));
+        this.ang1.setRads(ang1);
+        this.ang2.setRads(ang2);
         
     }
 
@@ -84,6 +87,6 @@ public class ArcInfo {
         calcAngs();
         this.arc = new Arc2D.Double(pointC.getX() - (radius), pointC.getY() - (radius), radius*2, radius*2, ang1.getDegs(), ang2.getDeltaAng(AngleType.DEG, ang1), Arc2D.PIE);
         System.out.println("ang1/ang2/deltaAng: " + ang1.getDegs() + "/" + ang2.getDegs() + "/" + ang2.getDeltaAng(AngleType.DEG, ang1));
-        // System.out.println("x1/y1 - x2/y2: " + point1.getX() + "/" + point1.getY() + " - " + point2.getX() + "/" + point2.getY());
+        System.out.println("x1/y1 - x2/y2: " + point1.getX() + "/" + point1.getY() + " - " + point2.getX() + "/" + point2.getY());
     }
 }

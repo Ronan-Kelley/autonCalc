@@ -63,13 +63,6 @@ public class Board extends JPanel implements ActionListener {
 	//used to make control a modifier key
 	public boolean modifierControlDown = false;
 
-	/*
-	 * not to be confused with the identically named variables in UserMarker, the
-	 * XPos and YPos in this class serve as a way to remember the position of the
-	 * last UserMarker when I new one is created, as well as a way to display the
-	 * coordinates on screen.
-	 */
-
 	private Image backgroundImage;
 
 	// this array list is public so that it can be used in the class that calculates
@@ -87,10 +80,6 @@ public class Board extends JPanel implements ActionListener {
 	public int colorIndexF = 0;
 	public int colorIndexE = 0;
 
-	//reading pre-made autons
-	public SequencerReader sequencerReader = new SequencerReader();
-	public Boolean drawPremadeAuton = false;
-
 	/*
 	 * 
 	 * begin methods
@@ -103,16 +92,8 @@ public class Board extends JPanel implements ActionListener {
 	}
 
 	public void initBoard() {
-		/* 
-		 * okay, so let's face it - this gui is NOT made professionally. Far from it.
-		 * It works, and that's great, but at some point, it should definitely get
-		 * a revamp - it's ugly, it doesn't follow good conventions, and if I'm
-		 * being honest board should only include the image and coordinates, with 
-		 * the two textboxes and two buttons going into another panel altogether.
-		 * 
-		 * if anyone wants to redesign the gui and knows how to, taking a stab at
-		 * it would be much appreciated - if not, I'm sure I'll get around to it
-		 * eventually. probably.
+		/**
+		 * not the most professional, beatiful, or well made gui ever designed, but it works.
 		 */
 
 		//

@@ -340,6 +340,14 @@ public class UserMarker {
 		}
 	}
 
+	public void incrementRotation(double increment) {
+		this.rotation += increment;
+		this.rotation %= 360;
+		while (this.rotation < 0) {
+			this.rotation += 360;
+		}
+	}
+
 	public double getLastAngle() {
 		return lastAngle;
 	}

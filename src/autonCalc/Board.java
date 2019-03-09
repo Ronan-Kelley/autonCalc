@@ -501,7 +501,7 @@ public class Board extends JPanel implements ActionListener {
 					double yOffset = UserMarker.inchesPerPixel * (arcList.get(marker.getArcIndex()).getMidpoint().getY() - arcList.get(marker.getArcIndex()).getPoint1().getY());
 					lastAngle = arcList.get(marker.getArcIndex()).getArc().getAngleExtent();
 					radius = arcList.get(marker.getArcIndex()).getRadius() * UserMarker.inchesPerPixel;
-					OUTPUT += "arc degrees: " + df.format(lastAngle) + ", radius: " + df.format(radius) + ", x offset: " + xOffset + ", y offset: " + yOffset + "\n";
+					OUTPUT += "arc degrees: " + df.format(lastAngle) + ", radius: " + df.format(radius) + ", x offset: " + xOffset + ", y offset: " + -yOffset + "\n";
 				}
 			}
 		}

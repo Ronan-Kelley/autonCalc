@@ -24,7 +24,11 @@ public class Application extends JFrame {
 		 * run the graphical end of things in the better way, according to stackexchange
 		 */
 
-		System.out.println("program launched");
+		System.out.println("program launching!");
+
+		// ENABLE SPEED
+		System.setProperty("sun.java2d.opengl", "true");
+		System.setProperty("sun.java2d.accthreshold", "0");
 
 		EventQueue.invokeLater(() -> {
 			Application exe = new Application();

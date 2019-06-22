@@ -1,7 +1,7 @@
 /*
  * board is where all the displaying of elements happens and where
- * the graphical portion of the piece begins. Board also contains 
- * the keylistener, timer, and actual initializer code. 
+ * the graphical portion of the piece begins. Board also contains
+ * the keylistener, timer, and actual initializer code.
  */
 
 package autonCalc;
@@ -22,18 +22,21 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.image.BufferedImage;
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.Timer;
+
+import autonCalc.util.GraphicsUtil;
 
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ActionListener {
@@ -63,7 +66,7 @@ public class Board extends JPanel implements ActionListener {
 	//used to make control a modifier key
 	public boolean modifierControlDown = false;
 
-	private Image backgroundImage;
+	private BufferedImage backgroundImage;
 
 	// this array list is public so that it can be used in the class that calculates
 	// results
@@ -81,9 +84,9 @@ public class Board extends JPanel implements ActionListener {
 	public int colorIndexE = 0;
 
 	/*
-	 * 
+	 *
 	 * begin methods
-	 * 
+	 *
 	 */
 
 	public Board() {
@@ -100,7 +103,7 @@ public class Board extends JPanel implements ActionListener {
 		//initialize board's settings
 		//
 		setBorder(BorderFactory.createEmptyBorder(450, 0, 0, 0));
-		
+
 		setSize(screenSize);
 		setPreferredSize(screenSize);
 
@@ -195,7 +198,7 @@ public class Board extends JPanel implements ActionListener {
 				}
 			}
 		});
-		
+
 		//
 		// key listener
 		//
@@ -302,7 +305,7 @@ public class Board extends JPanel implements ActionListener {
 						curveStage = 0;
 						initObjs();
 					} else if (modifierControlDown == false) {
-						cycleColor(false); // false is for friendly colors	
+						cycleColor(false); // false is for friendly colors
 					}
 				break;
 				//
@@ -351,8 +354,21 @@ public class Board extends JPanel implements ActionListener {
 		/*
 		 * load the field image, taken from FIRST
 		 */
-		ImageIcon iId = new ImageIcon("src/resource/backgroundImage2019.png");
-		backgroundImage = iId.getImage();
+		boolean failed = true;
+		short curAttempt = 0;
+		while (failed && curAttempt < 5) {
+			try {
+				Image bgImage = ImageIO.read(this.getClass().getResourceAsStream("../resource/backgroundImage2019.png"));
+				backgroundImage = GraphicsUtil.imgToBufferedImage(bgImage);
+				failed = false;
+			} catch (Exception e) {
+				failed = true;
+			} finally {
+				curAttempt++;
+			}
+		}
+
+
 	}
 
 	public void initObjs() {
@@ -407,7 +423,7 @@ public class Board extends JPanel implements ActionListener {
 			setMark(false);
 
 			curveStage = 1;
-		
+
 		} else if (curveStage == 1) {
 
 			arcBuilder.setCenter(x, y);
@@ -483,7 +499,7 @@ public class Board extends JPanel implements ActionListener {
 				double Y = marker.getCenterY();
 				/*
 				 * sometimes markers (specifically the second in the list?)
-				 * don't calculate a lastAngle or lastDistance when this 
+				 * don't calculate a lastAngle or lastDistance when this
 				 * function is called, this if statements seems to fix that
 				 */
 				if (marker.getLastDistance() == 0 || marker.getLastDistance() == -1|| marker.getLastAngle() == 0 || marker.getLastAngle() == -1) {
@@ -526,9 +542,10 @@ public class Board extends JPanel implements ActionListener {
 
 	public void doDrawing(Graphics g) {
 		/*
-		 * draws the background image before drawing all existing markers over it.
+		 * draws the background image before drawing all e xisting markers over it.
 		 */
-		g.drawImage(backgroundImage, 0, 0, this); // MUST BE THE FIRST THING DRAWN
+		Graphics2D g2d = (Graphics2D) g.create();
+		g2d.drawImage(backgroundImage, 0, 0, null); // MUST BE THE FIRST THING DRAWN
 		for (int i = 0; i < UMList.size(); i++) {
 			UMList.get(i).draw(g);
 		}
@@ -552,7 +569,7 @@ public class Board extends JPanel implements ActionListener {
 					int circleCenterX = (int) (UMList.get(i).getCenterX() + UMList.get(i + 1).getCircleX());
 					int circleCenterY = (int) (UMList.get(i).getCenterY() + UMList.get(i + 1).getCircleY());
 					int radius = (int) UMList.get(i + 1).getRadius();
-					
+
 					g.drawOval(circleCenterX, circleCenterY, radius, radius);
 				}
 			}
@@ -567,7 +584,7 @@ public class Board extends JPanel implements ActionListener {
 			double radius, mouseAng;
 			xc = (int) arcBuilder.getCenterPoint().getX();
 			yc = (int) arcBuilder.getCenterPoint().getY();
-			
+
 			radius = Math.sqrt(Math.pow(arcBuilder.getPoint1().getX() - xc, 2) + Math.pow(arcBuilder.getPoint1().getY() - yc, 2));
 			mouseAng = Math.atan2(mouseYpos - yc, mouseXpos - xc);
 
@@ -627,5 +644,5 @@ public class Board extends JPanel implements ActionListener {
 			}
 		}
 	}
-	
+
 } // end of class

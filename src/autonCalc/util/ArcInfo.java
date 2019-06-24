@@ -1,4 +1,4 @@
-package autonCalc;
+package autonCalc.util;
 
 import java.awt.Point;
 import java.awt.geom.Arc2D;
@@ -98,7 +98,7 @@ public class ArcInfo {
         ang2 *= -1;
 
         this.ang1.setRads(ang1);
-        this.ang2.setRads(ang2);   
+        this.ang2.setRads(ang2);
     }
 
     /**
@@ -107,7 +107,7 @@ public class ArcInfo {
     private void calcMidpoint() {
         double ang1to2 = getAng(point1, point2);
         double dist1to2 = getDistance(point1, point2);
-        
+
         int midX = (int) (point1.x + (dist1to2 / 2) * Math.cos(ang1to2));
         int midY = (int) (point1.y + (dist1to2 / 2) * Math.sin(ang1to2));
 

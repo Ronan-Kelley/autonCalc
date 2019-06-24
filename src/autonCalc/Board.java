@@ -8,7 +8,6 @@ package autonCalc;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -37,35 +36,52 @@ import javax.swing.ScrollPaneConstants;
 import javax.swing.Timer;
 
 import autonCalc.util.GraphicsUtil;
+import autonCalc.util.ArcInfo;
 
 @SuppressWarnings("serial")
 public class Board extends JPanel implements ActionListener {
 
-	public final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+	/**
+	 * swing objs
+	 */
 
+	// distance/angle outputs
 	public JTextArea output = new JTextArea(16, 58);
 	public JScrollPane scroll = new JScrollPane(output);
 
+	// current usermarker's coordinates
 	public Label coords = new Label();
 
+	// necessary to restore focus to the board when lost
 	public JButton focusButton = new JButton("restore focus");
 
-	//used in the keybinds to toggle freeze on controls
+	/**
+	 * keyboard control aid
+	 */
+
+	// used in the keybinds to toggle freeze on controls
 	public boolean allowMove = true;
 
-	// used in drawing curved drives
+	// used to make control a modifier key
+	public boolean modifierControlDown = false;
+
+	/**
+	 * curve drawing
+	 */
 	public int curveStage = 0;
 	public ArcInfo arcBuilder = new ArcInfo();
 	private Point arcBuilderCorrectedPoint2 = new Point();
 
-	// save mouse pos
+	/**
+	 * mouse pos information
+	 */
 	public static double mouseXpos;
 	public static double mouseYpos;
 	public static int SCROLLVAL = 0;
 
-	//used to make control a modifier key
-	public boolean modifierControlDown = false;
-
+	/**
+	 * local graphical objects
+	 */
 	private BufferedImage backgroundImage;
 
 	// this array list is public so that it can be used in the class that calculates
@@ -104,8 +120,8 @@ public class Board extends JPanel implements ActionListener {
 		//
 		setBorder(BorderFactory.createEmptyBorder(450, 0, 0, 0));
 
-		setSize(screenSize);
-		setPreferredSize(screenSize);
+		setSize(Toolkit.getDefaultToolkit().getScreenSize());
+		setPreferredSize(Toolkit.getDefaultToolkit().getScreenSize());
 
 		setFocusable(true);
 		setDoubleBuffered(true);

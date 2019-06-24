@@ -26,7 +26,7 @@ public class Application extends JFrame {
 
 		System.out.println("program launching!");
 
-		// ENABLE SPEED
+		// enable hardware acceleration
 		System.setProperty("sun.java2d.opengl", "true");
 		System.setProperty("sun.java2d.accthreshold", "0");
 

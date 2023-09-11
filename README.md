@@ -1,4 +1,4 @@
-# Foreward
+# Foreword
 This software was written in freshman year of highschool and updated my sophomore year. It is not actively maintained or supported, and the code is not of particularly high quality.
 
 # autonCalc
